@@ -24,7 +24,7 @@ class ComboEps extends Component {
     }
 
     fetchDataEps(){
-        fetch(this.props.hostname+"/otass-rest/MainController/getEps")
+        fetch(this.props.hostname+"/APISunass/MainController/getEps")
         .then((response) =>{
             console.log(response); //SE MUESTRA LOS EPS QUE FETCHEAMOS
             if(response.status === 404){
@@ -44,7 +44,7 @@ class ComboEps extends Component {
     crearOpcionesEps(){
         const objs = [];
         for(var i in this.state.dataEps){
-                objs.push(<option key={i+1} value={this.state.dataEps[i].codigo}>{this.state.dataEps[i].nombre}</option>)
+                objs.push(<option key={i+1} value={this.state.dataEps[i].codeps}>{this.state.dataEps[i].deneps}</option>)
         }
         return objs;
     }

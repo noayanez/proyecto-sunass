@@ -11,7 +11,7 @@ class App extends Component {
     constructor(){
         super();
         this.state = {
-            hostname : "http://181.177.234.57:81", //HAY QUE AÑADIR UN HOSTNAME PARA QUE FUNCIONE LA APLICACION WEB
+            hostname : "http://179.43.88.86:8080", //HAY QUE AÑADIR UN HOSTNAME PARA QUE FUNCIONE LA APLICACION WEB
             eps : "",
             epsNombre : "",
             local : "",
@@ -71,10 +71,17 @@ class App extends Component {
     }
 
     fetchData(eps,local,periodo,mes){
+        var stringRuta = "";
+        if(this.state.tipo==="1"){
+            stringRuta="variables/getVariables";
+        }
+        if(this.state.tipo==="2"){
+            stringRuta="indicadores/getIndicadores";
+        }
         this.setState({
             isTableLoaded : false
         });
-        fetch(this.state.hostname+"/otass-rest/MainController/?id_eps="+eps+"&id_local="+local+"&periodo="+periodo+mes)
+        fetch(this.state.hostname+"/APISunass/MainController/"+stringRuta+"/?id_eps="+eps+"&id_local="+local+"&periodo="+periodo+mes)
         .then((response) =>{
             return response.json()
         })
@@ -265,7 +272,7 @@ class App extends Component {
     	                               <a className="fa fa-facebook" target="_blank" rel="noopener noreferrer" href="https://www.facebook.com/Sunass.Regulador/">{null}</a>
                                        <a className="fa fa-twitter" target="_blank" rel="noopener noreferrer" href="https://twitter.com/sunassperu">{null}</a>
                                        <a className="fa fa-youtube" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/user/sunassdelperu">{null}</a>
-                                       <a className="fa fa-instagram" target="_blank" rel="noopener noreferrer" href="https://www.instagram.com/sunass.peru//">{null}</a>
+                                       <a className="fa fa-instagram" target="_blank" rel="noopener noreferrer" href="https://www.instagram.com/sunass.peru/">{null}</a>
                                     </div>
                                 </div>
                             </div>
@@ -321,7 +328,7 @@ class App extends Component {
                     </div>):(null)
                 }
 
-                {(this.state.isTableLoaded && listado.length !==0 && this.state.tipoReal === "1")?
+                {(this.state.isTableLoaded && listado.length !==0 && this.state.tipoReal !== "")?
                     (
                         <div className="contenido-tabla">
                             <div className="row centrado">
@@ -332,23 +339,29 @@ class App extends Component {
                             <div className="row">
                                 <div className="col-2"></div>
                                 <div className="col-8">
-                                    <table className="table" id="tabla-principal">
-                                        <thead className="thead-light">
+                                    <table className="table table-hover table-light" id="tabla-principal">
+                                        <thead className="thead-dark">
                                             <tr>
                                                 <th>Fecha de registro</th>
                                                 <th>Codigo</th>
                                                 <th>Detalle</th>
                                                 <th style={{"textAlign":"right"}}>Valor</th>
-                                                <th style={{"textAlign":"center"}}>Unidad</th>
+                                                <th style={{"textAlign":"center"}}>Simbolo</th>
                                             </tr>
                                         </thead>
                                         <tbody>{listado.map((dynamicData, i) =>
                                             <tr key={i}>
-                                                <td>{dynamicData.fecha_registro}</td>
-                                                <td>{dynamicData.codigo}</td>
-                                                <td>{dynamicData.nombre}</td>
+                                                <td>{dynamicData.fecultact}</td>
+                                                {this.state.tipoReal==="1"?
+                                                    (<td>{dynamicData.codvar}</td>):(<td>{dynamicData.codind}</td>)
+                                                }
+                                                {this.state.tipoReal==="1"?
+                                                    (<td>{dynamicData.desvar}</td>):(<td>{dynamicData.desind}</td>)
+                                                }
                                                 <td align="right">{this.formatNumber(dynamicData.valor)}</td>
-                                                <td align="center">{dynamicData.simbolo}</td>
+                                                {this.state.tipoReal==="1"?
+                                                    (<td style={{"textAlign":"center"}}>{dynamicData.simvar}</td>):(<td style={{"textAlign":"center"}}>{dynamicData.simind}</td>)
+                                                }
                                             </tr>
                                         )}
                                         </tbody>

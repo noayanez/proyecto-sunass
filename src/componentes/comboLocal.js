@@ -21,7 +21,7 @@ class ComboLocal extends Component {
     }
 
     fetchDataLocal(epsaux){
-        fetch(this.props.hostname+"/otass-rest/MainController/getLocalidades/?id_eps="+epsaux)
+        fetch(this.props.hostname+"/APISunass/MainController/getLocalidades/?eps="+epsaux)
         .then((response) =>{
             //console.log(response); //SE MUESTRA LA RESPUESTA DE LA PETICION
             if(response.status === 404){
@@ -41,7 +41,7 @@ class ComboLocal extends Component {
     crearOpcionesLocal(){
         const objs = [];
         for(var i in this.state.dataLocal){
-            objs.push(<option key={i+2} value={this.state.dataLocal[i].codigo}>{this.state.dataLocal[i].nombre}</option>)
+            objs.push(<option key={i+2} value={this.state.dataLocal[i].codlocacion}>{this.state.dataLocal[i].denlocacion}</option>)
         }
         return objs;
     }

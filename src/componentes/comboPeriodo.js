@@ -39,7 +39,14 @@ class ComboPeriodo extends Component {
     }
 
     fetchDataPeriodo(epsaux, localaux) {
-        fetch(this.props.hostname+"/otass-rest/MainController/getYears/?id_eps="+epsaux+"&id_local="+localaux)
+        var stringRuta = "";
+        if(this.props.tipo==="1"){
+            stringRuta="variables";
+        }
+        if(this.props.tipo==="2"){
+            stringRuta="indicadores";
+        }
+        fetch(this.props.hostname+"/APISunass/MainController/"+stringRuta+"/getYears/?id_eps="+epsaux+"&id_local="+localaux)
         .then((response) =>{
             //console.log(response); //SE MUESTRA LA RESPUESTA DE LA PETICION
             if(response.status === 404){
