@@ -11,9 +11,8 @@ class App extends Component {
     constructor(){
         super();
         this.state = {
-            hostname : "", //HAY QUE AÑADIR UN HOSTNAME PARA QUE FUNCIONE LA APLICACION WEB
+            hostname : "http://181.177.234.57:81", //HAY QUE AÑADIR UN HOSTNAME PARA QUE FUNCIONE LA APLICACION WEB
             eps : "",
-            filtrar : "3",
             epsNombre : "",
             local : "",
             periodo : "",
@@ -43,26 +42,7 @@ class App extends Component {
         this.formatNumber = this.formatNumber.bind(this);
         this.roundNumber = this.roundNumber.bind(this);
         this.limpiarAlerta = this.limpiarAlerta.bind(this);
-        this.handleChangeFiltrar = this.handleChangeFiltrar.bind(this);
         this.ordenarTableData = this.ordenarTableData.bind(this);
-    }
-
-    handleChangeFiltrar(){
-        if(this.state.filtrar === "1"){
-            this.setState({
-                filtrar : "2"
-            });
-		}else{
-            if(this.state.filtrar === "2"){
-                this.setState({
-                    filtrar : "3"
-                });
-    		}else{
-                this.setState({
-                    filtrar : "1"
-                });
-            }
-        }
     }
 
     ordenarTableData(result){
@@ -91,27 +71,10 @@ class App extends Component {
     }
 
     fetchData(eps,local,periodo,mes){
-        var tipoString = "";
-        if (this.state.tipo === "1") {
-            tipoString = "saldos/getSaldos"; //CAMBIAR
-        }
-
         this.setState({
             isTableLoaded : false
         });
-        const data = {
-            id_eps : parseInt(eps,10),
-            id_local : parseInt(local,10),
-            periodo : periodo+mes
-        }
-        fetch(this.state.hostname+"/otass-rest/MainController/"+tipoString, {
-            method : 'POST',
-            headers : {
-                accept : '*/*',
-                'Content-Type' : 'application/json'
-            },
-            body : JSON.stringify(data)
-        })
+        fetch(this.state.hostname+"/otass-rest/MainController/?id_eps="+eps+"&id_local="+local+"&periodo="+periodo+mes)
         .then((response) =>{
             return response.json()
         })
@@ -308,23 +271,11 @@ class App extends Component {
                             </div>
                             <hr/>
                             <div className="row  centrado">
-                                <div className="col-8">
-                                    <div className="row">
-                                        <div className="col-10">
-                                            <ComboEps eps={this.state.eps}
-                                            onChange={this.handleChangeEps} onChange2={this.handleChangeEpsNombre} vaciarTodo={this.vaciarTodo} hostname={this.state.hostname} filtrar={this.state.filtrar}/>
-                                        </div>
-                                        <div className="col-2">
-                                            {this.state.filtrar==="3" ?
-                                                (<button className="botonCheck-neutro" onClick={this.handleChangeFiltrar}><b>Todas</b></button>):(
-                                                    this.state.filtrar==="1"?
-                                                        (<button className="botonCheck-activo" onClick={this.handleChangeFiltrar}><b>✔ Si</b></button>):(<button className="botonCheck" onClick={this.handleChangeFiltrar}><b>✖ No</b></button>)
-                                                    )
-                                            }
-                                        </div>
-                                    </div>
+                                <div className="col-6">
+                                    <ComboEps eps={this.state.eps}
+                                    onChange={this.handleChangeEps} onChange2={this.handleChangeEpsNombre} vaciarTodo={this.vaciarTodo} hostname={this.state.hostname}/>
                                 </div>
-                                <div className="col-4">
+                                <div className="col-6">
                                     <ComboLocal eps={this.state.eps} local={this.state.local}
                                     onChange={this.handleChangeLocal} hostname={this.state.hostname}/>
                                 </div>
@@ -371,9 +322,44 @@ class App extends Component {
                 }
 
                 {(this.state.isTableLoaded && listado.length !==0 && this.state.tipoReal === "1")?
-                    (null):(null)
+                    (
+                        <div className="contenido-tabla">
+                            <div className="row centrado">
+                                <div className="col-12">
+                                    <p><b>Moneda : PEN Soles</b></p>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col-2"></div>
+                                <div className="col-8">
+                                    <table className="table" id="tabla-principal">
+                                        <thead className="thead-light">
+                                            <tr>
+                                                <th>Fecha de registro</th>
+                                                <th>Codigo</th>
+                                                <th>Detalle</th>
+                                                <th style={{"textAlign":"right"}}>Valor</th>
+                                                <th style={{"textAlign":"center"}}>Unidad</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>{listado.map((dynamicData, i) =>
+                                            <tr key={i}>
+                                                <td>{dynamicData.fecha_registro}</td>
+                                                <td>{dynamicData.codigo}</td>
+                                                <td>{dynamicData.nombre}</td>
+                                                <td align="right">{this.formatNumber(dynamicData.valor)}</td>
+                                                <td align="center">{dynamicData.simbolo}</td>
+                                            </tr>
+                                        )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="col-2"></div>
+                            </div>
+                        </div>
+                    ):(null)
                 }
-                
+
             </div>
         );
     }

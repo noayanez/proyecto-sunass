@@ -21,17 +21,7 @@ class ComboLocal extends Component {
     }
 
     fetchDataLocal(epsaux){
-        const data = {
-            id_eps : parseInt(epsaux,10)
-        }
-        fetch(this.props.hostname+"/otass-rest/MainController/getLocalidades", {
-            method : 'POST',
-            headers : {
-                accept : '*/*',
-                'Content-Type' : 'application/json'
-            },
-            body : JSON.stringify(data)
-        })
+        fetch(this.props.hostname+"/otass-rest/MainController/getLocalidades/?id_eps="+epsaux)
         .then((response) =>{
             //console.log(response); //SE MUESTRA LA RESPUESTA DE LA PETICION
             if(response.status === 404){

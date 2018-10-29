@@ -39,28 +39,7 @@ class ComboPeriodo extends Component {
     }
 
     fetchDataPeriodo(epsaux, localaux) {
-        var tipoString = "";
-        if (this.props.tipo === "1") {
-            tipoString = "saldos";
-        } else {
-            if (this.props.tipo === "2") {
-                tipoString = "flujos";
-            } else {
-                tipoString = "variables";
-            }
-        }
-        const data = {
-            id_eps : parseInt(epsaux,10),
-            id_local : parseInt(localaux,10)
-        }
-        fetch(this.props.hostname+"/otass-rest/MainController/"+tipoString+"/getYears", {
-            method : 'POST',
-            headers : {
-                accept : '*/*',
-                'Content-Type' : 'application/json'
-            },
-            body : JSON.stringify(data)
-        })
+        fetch(this.props.hostname+"/otass-rest/MainController/getYears/?id_eps="+epsaux+"&id_local="+localaux)
         .then((response) =>{
             //console.log(response); //SE MUESTRA LA RESPUESTA DE LA PETICION
             if(response.status === 404){
