@@ -54,7 +54,7 @@ class ComboLocal extends Component {
                 </div>
                 <select className="custom-select" id="select-local" value={this.props.local} onChange={this.props.onChange}>
                     <option key={0} value="" disabled>Seleccione localidad</option>
-                    <option key={1} value="-1">Todas</option>
+                    <option key={1} value="-1">TODAS</option>
                     {this.crearOpcionesLocal()}
                 </select>
             </div>
