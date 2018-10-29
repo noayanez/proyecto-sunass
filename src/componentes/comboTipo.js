@@ -41,8 +41,6 @@ class ComboPeriodo extends Component {
                 </div>
                 <select className="custom-select" id="select-periodo" value={this.props.tipo} onChange={this.props.onChange}>
                     <option key={0} value="" disabled>Seleccione tipo</option>
-                    <option value="1">Saldo de banco</option>
-                    <option value="2">Flujo de caja</option>
                     <option value="3">Variables</option>
                 </select>
             </div>

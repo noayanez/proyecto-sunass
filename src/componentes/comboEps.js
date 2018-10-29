@@ -43,7 +43,12 @@ class ComboEps extends Component {
             }
         })
         .then((response) =>{
-            return response.json()
+            //console.log(response); //SE MUESTRA LOS EPS QUE FETCHEAMOS
+            if(response.status === 404){
+                return [];
+            }else{
+                return response.json()
+            }
         })
         .then((result) => {
             console.log(result);
