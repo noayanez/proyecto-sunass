@@ -263,8 +263,8 @@ class App extends Component {
                             <div className="row celda-otass  centrado">
                                 <div className="col-3"></div>
                                 <div className="col-6">
-                                    <a href="http://www.otass.gob.pe/">
-                                        <img className="logo-otass" alt="Enlace página OTASS"src={require("./LOGO_VECTOR.png")}/>
+                                    <a href="https://www.sunass.gob.pe/">
+                                        <img className="logo-sunass" alt="Enlace página SUNASS"src={require("./LOGO_VECTOR.png")}/>
                                     </a>
                                 </div>
                                 <div className="col-3">
