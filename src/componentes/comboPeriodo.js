@@ -39,28 +39,34 @@ class ComboPeriodo extends Component {
     }
 
     fetchDataPeriodo(epsaux, localaux) {
-        var stringRuta = "";
-        if(this.props.tipo==="1"){
-            stringRuta="variables";
-        }
-        if(this.props.tipo==="2"){
-            stringRuta="indicadores";
-        }
-        fetch(this.props.hostname+"/APISunass/MainController/"+stringRuta+"/getYears/?id_eps="+epsaux+"&id_local="+localaux)
-        .then((response) =>{
-            //console.log(response); //SE MUESTRA LA RESPUESTA DE LA PETICION
-            if(response.status === 404){
-                return [];
-            }else{
-                return response.json()
+        if(this.props.tipo!=="3"){                      //BORRAR DESPUES
+            var stringRuta = "";
+            if(this.props.tipo==="1"){
+                stringRuta="variables";
             }
-        })
-        .then((result) => {
-            console.log(result);
-            this.setState({
-                dataPeriodo : result
-            });
-        })
+            if(this.props.tipo==="2"){
+                stringRuta="indicadores";
+            }
+            fetch(this.props.hostname+"/APISunass/MainController/"+stringRuta+"/getYears/?id_eps="+epsaux+"&id_local="+localaux)
+            .then((response) =>{
+                //console.log(response); //SE MUESTRA LA RESPUESTA DE LA PETICION
+                if(response.status === 404){
+                    return [];
+                }else{
+                    return response.json()
+                }
+            })
+            .then((result) => {
+                console.log(result);
+                this.setState({
+                    dataPeriodo : result
+                });
+            })
+        }else{                                          //BORRAR DESPUES
+            this.setState({                             //BORRAR DESPUES
+                dataPeriodo : ["2017","2018","2019"]    //BORRAR DESPUES
+            });                                         //BORRAR DESPUES
+        }
     }
 
     crearOpcionesPeriodo(){

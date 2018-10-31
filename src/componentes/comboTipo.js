@@ -43,6 +43,7 @@ class ComboPeriodo extends Component {
                     <option key={0} value="" disabled>Seleccione tipo</option>
                     <option value="1">Variables</option>
                     <option value="2">Indicadores</option>
+                    <option value="3">Reporte regulatorio</option>
                 </select>
             </div>
         )

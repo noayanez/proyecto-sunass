@@ -4,6 +4,7 @@ import ComboLocal from './componentes/comboLocal.js';
 import ComboPeriodo from './componentes/comboPeriodo.js';
 import ComboMes from './componentes/comboMes.js';
 import ComboTipo from './componentes/comboTipo.js';
+import ModalReportesRegulatorios from './componentes/ModalReportesRegulatorios.js';
 import './App.css';
 
 class App extends Component {
@@ -37,6 +38,7 @@ class App extends Component {
         this.handleChangePeriodo = this.handleChangePeriodo.bind(this);
         this.handleChangeMes = this.handleChangeMes.bind(this);
         this.handleChangeTipo = this.handleChangeTipo.bind(this);
+        this.vaciarTipoReal = this.vaciarTipoReal.bind(this);
         this.handleChangeDataSaldo = this.handleChangeDataSaldo.bind(this);
         this.botonEnviar = this.botonEnviar.bind(this);
         this.formatNumber = this.formatNumber.bind(this);
@@ -65,9 +67,7 @@ class App extends Component {
     }
 
     limpiarAlerta(){
-        this.setState({
-            alerta : ""
-        })
+        this.setState({ alerta : "" })
     }
 
     fetchData(eps,local,periodo,mes){
@@ -138,30 +138,17 @@ class App extends Component {
             }
         }
         if(this.state.eps !== "" && this.state.local !== "" && this.state.periodo !== "" && this.state.mes !== "" && this.state.tipo !== ""){
-            this.fetchData(this.state.eps,this.state.local,this.state.periodo,this.state.mes);
+            if(this.state.tipo !== "3"){                                                                    //BORRAR DESPUES
+                this.fetchData(this.state.eps,this.state.local,this.state.periodo,this.state.mes);
+            }else{                                                                                          //BORRAR DESPUES
+                this.setState({ tipoReal : "3"});                                                              //BORRAR DESPUES
+            }                                                                                               //BORRAR DESPUES
         }else{
             this.setState({
                 alerta : "Faltan campos por seleccionar.",
                 isTableLoaded : false
             });
         }
-    }
-
-    vaciarTodo(){
-        this.setState({
-            eps : "",
-            epsNombre : "",
-            local : "",
-            periodo : "",
-            mes : ""
-        });
-    }
-
-    vaciarPeriodo(){
-        this.setState({
-            periodo : "",
-            mes : ""
-        });
     }
 
     handleChangeEps(event){
@@ -176,44 +163,39 @@ class App extends Component {
     }
 
     handleChangeLocal(event){
-        this.setState({
-            local : event.target.value,
-            periodo : "",
-            alerta : ""
-        });
+        this.setState({ local : event.target.value, periodo : "", alerta : "" });
     }
 
     handleChangePeriodo(event){
-        this.setState({
-            periodo : event.target.value,
-            alerta : ""
-        });
+        this.setState({ periodo : event.target.value, alerta : "" });
     }
 
     handleChangeMes(event){
-        this.setState({
-            mes : event.target.value,
-            alerta : ""
-        });
+        this.setState({ mes : event.target.value, alerta : "" });
     }
 
     handleChangeTipo(event){
-        this.setState({
-            tipo : event.target.value,
-            alerta : ""
-        });
+        this.setState({ tipo : event.target.value, alerta : "" });
     }
 
     handleChangeDataSaldo(data){
-        this.setState({
-            dataSaldo : data
-        });
+        this.setState({ dataSaldo : data });
     }
 
     handleChangeEpsNombre(nombre){
-        this.setState({
-            epsNombre : nombre
-        })
+        this.setState({ epsNombre : nombre })
+    }
+
+    vaciarTodo(){
+        this.setState({ eps : "", epsNombre : "", local : "", periodo : "", mes : "" });
+    }
+
+    vaciarPeriodo(){
+        this.setState({ periodo : "", mes : "" });
+    }
+
+    vaciarTipoReal(){
+        this.setState({ tipoReal : "" })
     }
 
     roundNumber(num, scale = 2) {
@@ -328,7 +310,7 @@ class App extends Component {
                     </div>):(null)
                 }
 
-                {(this.state.isTableLoaded && listado.length !==0 && this.state.tipoReal !== "")?
+                {(this.state.isTableLoaded && listado.length !==0 && (this.state.tipoReal === "1" || this.state.tipoReal !== "2"))?
                     (
                         <div className="contenido-tabla">
                             <div className="row centrado">
@@ -368,6 +350,213 @@ class App extends Component {
                                     </table>
                                 </div>
                                 <div className="col-2"></div>
+                            </div>
+                        </div>
+                    ):(null)
+                }
+
+                {this.state.tipoReal === "3"?
+                    (
+                        <div className="modal-rr">
+                            <div className="modal-dialog tam50">
+                                <div className="modal-content">
+                                    <div className="modal-body">
+                                        <div className="container">
+                                            <div className="row">
+                                                <div className="col-6">
+                                                    <div className="panel panel-default">
+                                                        <div className="panel-heading"><h5><b>Reportes Regulatorios</b></h5></div>
+                                                        <ul className="list-group">
+                                                            <li className="list-group-item">
+                                                                Anexo 5: Costos y gastos
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionDefault" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionDefault" className="label-default"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Anexo 2: Facturación e ingresos
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionPrimary" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionPrimary" className="label-primary"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Anexo 2: Activo fijo
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionSuccess" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionSuccess" className="label-success"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Anexo 3: Reporte de sanciones
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionInfo" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionInfo" className="label-info"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Anexo 4: Reporte de inversiones
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionInfo" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionInfo" className="label-info"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Anexo 6: Financiamiento
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionWarning" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionWarning" className="label-warning"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Anexo 6: Costos de producción
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionDanger" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionDanger" className="label-danger"></label>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <br/>
+                                                    <div className="panel panel-default">
+                                                        <div className="panel-heading"><h5><b>Reportes de validación</b></h5></div>
+                                                        <ul className="list-group">
+                                                            <li className="list-group-item">
+                                                                Resumen de cuentas
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionDefault" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionDefault" className="label-default"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Consistencia de ingresos y egresos
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionPrimary" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionPrimary" className="label-primary"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Análisis de variación de existencias
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionSuccess" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionSuccess" className="label-success"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Cuentas sin movimientos
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionInfo" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionInfo" className="label-info"></label>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div className="col-6">
+                                                    <div className="panel panel-default">
+                                                        <div className="panel-heading"><h5><b>Reportes de Acompañamiento</b></h5></div>
+                                                        <ul className="list-group">
+                                                            <li className="list-group-item">
+                                                                Por cuenta contable
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionDefault" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionDefault" className="label-default"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Por cuenta contable comparativo
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionPrimary" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionPrimary" className="label-primary"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Saldos de transferencias
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionSuccess" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionSuccess" className="label-success"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Saldos de inversiones
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionInfo" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionInfo" className="label-info"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Variables de gestión
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionWarning" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionWarning" className="label-warning"></label>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    <br/>
+                                                    <div className="panel panel-default">
+                                                        <div className="panel-heading"><h5><b>Reportes para estudios tarifarios</b></h5></div>
+                                                        <ul className="list-group">
+                                                            <li className="list-group-item">
+                                                                Reporte ET-1: Variables de gestión
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionDefault" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionDefault" className="label-default"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Reporte ET-2: Servicios y procesos
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionPrimary" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionPrimary" className="label-primary"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Reporte ET-3: Anexo 5 Anualizado
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionSuccess" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionSuccess" className="label-success"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Reporte ET-4: Cuentas contables anualizado
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionInfo" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionInfo" className="label-info"></label>
+                                                                </div>
+                                                            </li>
+                                                            <li className="list-group-item">
+                                                                Reporte ET-5: Centros de costos anualizado
+                                                                <div className="material-switch pull-right">
+                                                                    <input id="someSwitchOptionWarning" name="someSwitchOption001" type="checkbox"/>
+                                                                    <label for="someSwitchOptionWarning" className="label-warning"></label>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="modal-footer">
+                                        <div className="container-fluid">
+                                            <div className="row">
+                                                <div className="col-9"></div>
+                                                <div className="col-3">
+                                                    <div className="row">
+                                                        <div className="col-6">
+                                                            <button onClick={this.vaciarTipoReal} className="btn btn-secondary">Cancelar</button>
+                                                        </div>
+                                                        <div className="col-6">
+                                                            <button onClick={this.vaciarTipoReal} className="btn btn-primary">Generar</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ):(null)
