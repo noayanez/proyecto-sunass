@@ -4,7 +4,7 @@ import ComboLocal from './componentes/comboLocal.js';
 import ComboPeriodo from './componentes/comboPeriodo.js';
 import ComboMes from './componentes/comboMes.js';
 import ComboTipo from './componentes/comboTipo.js';
-import ModalReportesRegulatorios from './componentes/ModalReportesRegulatorios.js';
+import Chart from './componentes/chart.js'
 import './App.css';
 
 class App extends Component {
@@ -28,7 +28,38 @@ class App extends Component {
             isLocalLoaded : false,
             isPeriodoLoaded : false,
             isTableLoaded : false,
-            tableData : []
+            tableData : [],
+            chartData : [{
+                    "label": "Venezuela",
+                    "value": "290"
+                }, {
+                    "label": "Saudi",
+                    "value": "260"
+                }, {
+                    "label": "Canada",
+                    "value": "180"
+                }, {
+                    "label": "Iran",
+                    "value": "140"
+                }, {
+                    "label": "Russia",
+                    "value": "115"
+                }, {
+                    "label": "UAE",
+                    "value": "100"
+                }, {
+                    "label": "US",
+                    "value": "30"
+                }, {
+                    "label": "China",
+                    "value": "30"
+                }], //usado para dar datos al FusionChart (cuadro)
+            titulo: 'AQUI VA EL TITULO', //usado para el titulo del cuadro
+            subtitulo: 'AQUI VA EL SUBTITULO', //usado para el subtitulo del cuadro
+            grafico : 'column2d', //usado para el tipo de grafico del cuadro
+            colores : "", //usado para el tipo de color del cuadro/grafico
+            grad : "0", //usado para el gradiente del cuadro
+            prefijo : "SIMB. ", //usado para el prefijo del cuadro
         };
         this.handleChangeEps = this.handleChangeEps.bind(this);
         this.vaciarTodo = this.vaciarTodo.bind(this);
@@ -310,7 +341,19 @@ class App extends Component {
                     </div>):(null)
                 }
 
-                {(this.state.isTableLoaded && listado.length !==0 && (this.state.tipoReal === "1" || this.state.tipoReal !== "2"))?
+                {(false) ?
+                    (<Chart
+                        chartData={this.state.chartData}
+                        grafico={this.state.grafico}
+                        legendPosition="bottom"
+                        titulo={this.state.titulo}
+                        paleta={this.state.colores}
+                        grad={this.state.grad}
+                        prefijo={this.state.prefijo}
+                        subtitulo={this.state.subtitulo}/>):(null)
+                }
+
+                {(this.state.isTableLoaded && listado.length !==0 && (this.state.tipoReal === "1" || this.state.tipoReal === "2"))?
                     (
                         <div className="contenido-tabla">
                             <div className="row centrado">
