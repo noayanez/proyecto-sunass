@@ -13,8 +13,8 @@ class ComboEps extends Component {
     onSelect(event){
         this.props.onChange(event);
         for(var i in this.state.dataEps){
-            if(parseInt(event.target.value,10) === this.state.dataEps[i].codigo){
-                this.props.onChange2(this.state.dataEps[i].nombre);
+            if(parseInt(event.target.value,10) === this.state.dataEps[i].codeps){
+                this.props.onChange2(this.state.dataEps[i].deneps);
             }
         }
     }

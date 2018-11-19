@@ -16,10 +16,12 @@ class Chart extends Component{
             chartData : props.chartData,
             type : props.grafico,
             width: '100%',
-            height: '100%',
+            height: '600',
             dataFormat: 'json',
             dataSource: {
                 chart: {
+                    "bgColor" : "#F4F4F4",
+                    "bgAlpha" : "100",
                     "labelFontColor" : "#000000",
                     "rotateValues": "0",
                     "placeValuesInside": "0",
@@ -31,7 +33,6 @@ class Chart extends Component{
                     "baseFont": "Arial",
                     "baseFontSize": "16",
                     caption: props.titulo,
-                    subcaption : props.subtitulo,
                     captionFontSize: "24",
                     numberPrefix: props.prefijo,
                     "subcaptionFontSize": "24",

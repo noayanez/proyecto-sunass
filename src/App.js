@@ -4,6 +4,8 @@ import ComboLocal from './componentes/comboLocal.js';
 import ComboPeriodo from './componentes/comboPeriodo.js';
 import ComboMes from './componentes/comboMes.js';
 import ComboTipo from './componentes/comboTipo.js';
+import ModalReportesRegulatorios from './componentes/ModalReportesRegulatorios.js';
+import ModalVariables from './componentes/ModalVariables.js';
 import Chart from './componentes/chart.js'
 import './App.css';
 
@@ -12,6 +14,11 @@ class App extends Component {
     constructor(){
         super();
         this.state = {
+            codigos : [],
+            codigosAceptados : [],
+            tipoConsulta : "tabla",
+            acumulado : false,
+            empezarConsulta : false,
             hostname : "http://179.43.88.86:8080", //HAY QUE AÑADIR UN HOSTNAME PARA QUE FUNCIONE LA APLICACION WEB
             eps : "",
             epsNombre : "",
@@ -22,44 +29,21 @@ class App extends Component {
             tipoReal : "",
             dataSaldo : [],
             alerta : "",
-            fechaActual : "",
-            fechaActualGuion : "",
             isEpsLoaded : false,
             isLocalLoaded : false,
             isPeriodoLoaded : false,
             isTableLoaded : false,
+            isGraficoLoaded :false,
             tableData : [],
-            chartData : [{
-                    "label": "Venezuela",
-                    "value": "290"
-                }, {
-                    "label": "Saudi",
-                    "value": "260"
-                }, {
-                    "label": "Canada",
-                    "value": "180"
-                }, {
-                    "label": "Iran",
-                    "value": "140"
-                }, {
-                    "label": "Russia",
-                    "value": "115"
-                }, {
-                    "label": "UAE",
-                    "value": "100"
-                }, {
-                    "label": "US",
-                    "value": "30"
-                }, {
-                    "label": "China",
-                    "value": "30"
-                }], //usado para dar datos al FusionChart (cuadro)
+            filtrar : false,
+            opcionReporte : "",
+            chartData : [], //usado para dar datos al FusionChart (cuadro)
             titulo: 'AQUI VA EL TITULO', //usado para el titulo del cuadro
-            subtitulo: 'AQUI VA EL SUBTITULO', //usado para el subtitulo del cuadro
             grafico : 'column2d', //usado para el tipo de grafico del cuadro
             colores : "", //usado para el tipo de color del cuadro/grafico
             grad : "0", //usado para el gradiente del cuadro
-            prefijo : "SIMB. ", //usado para el prefijo del cuadro
+            prefijo : "", //usado para el prefijo del cuadro
+            modalbool : false,
         };
         this.handleChangeEps = this.handleChangeEps.bind(this);
         this.vaciarTodo = this.vaciarTodo.bind(this);
@@ -70,70 +54,146 @@ class App extends Component {
         this.handleChangeMes = this.handleChangeMes.bind(this);
         this.handleChangeTipo = this.handleChangeTipo.bind(this);
         this.vaciarTipoReal = this.vaciarTipoReal.bind(this);
+        this.vaciarModal = this.vaciarModal.bind(this);
+        this.vaciarTipo = this.vaciarTipo.bind(this);
         this.handleChangeDataSaldo = this.handleChangeDataSaldo.bind(this);
         this.botonEnviar = this.botonEnviar.bind(this);
         this.formatNumber = this.formatNumber.bind(this);
         this.roundNumber = this.roundNumber.bind(this);
         this.limpiarAlerta = this.limpiarAlerta.bind(this);
-        this.ordenarTableData = this.ordenarTableData.bind(this);
-    }
-
-    ordenarTableData(result){
-        var arrayaux = [];
-        if(this.state.tipo ==="1"){
-            for(var i in result){
-                arrayaux.push({
-                    "cuenta":(result[i].cuenta),
-                    "desc_cuenta":(result[i].desc_cuenta),
-                    "saldo_anterior":(this.formatNumber(result[i].saldo_anterior)),
-                    "ingresos":(this.formatNumber(result[i].ingresos)),
-                    "egresos":(this.formatNumber(result[i].egresos)),
-                    "saldo_final":(this.formatNumber(result[i].saldo_final))
-                });
-            }
-            this.setState({
-                tableData : arrayaux
-            });
-        }
+        this.handleChangeFiltrar = this.handleChangeFiltrar.bind(this);
+        this.handleChangeCodigosAceptados = this.handleChangeCodigosAceptados.bind(this);
+        this.handleChangeTipoConsulta = this.handleChangeTipoConsulta.bind(this);
+        this.handleChangeAcumulado = this.handleChangeAcumulado.bind(this);
+        this.handleChangeEmpezarConsulta = this.handleChangeEmpezarConsulta.bind(this);
+        this.handleChangeTipoGrafico = this.handleChangeTipoGrafico.bind(this);
+        this.fetchConsulta = this.fetchConsulta.bind(this);
+        this.cambioGrad = this.cambioGrad.bind(this);
     }
 
     limpiarAlerta(){
         this.setState({ alerta : "" })
     }
 
-    fetchData(eps,local,periodo,mes){
-        var stringRuta = "";
+    cambiarAlerta(alerta){
+        this.setState({ alerta : alerta })
+    }
+
+    cambioGrad(event){
+        this.setState({ grad : event.target.value })
+    }
+
+    handleChangeTipoGrafico(event){
+        this.setState({ grafico : event.target.value })
+    }
+
+    fetchCodigos(eps,local,periodo,mes){
+        var param1 = "";
+        var param2 = "";
         if(this.state.tipo==="1"){
-            stringRuta="variables/getVariables";
+            param1 = "variables";
+            param2 = "Variables"
+        }else{
+            param1 = "indicadores";
+            param2 = "Indicadores";
         }
-        if(this.state.tipo==="2"){
-            stringRuta="indicadores/getIndicadores";
-        }
-        this.setState({
-            isTableLoaded : false
-        });
-        fetch(this.state.hostname+"/APISunass/MainController/"+stringRuta+"/?id_eps="+eps+"&id_local="+local+"&periodo="+periodo+mes)
+        fetch(this.state.hostname+"/APISunass/MainController/"+param1+"/getCodigos"+param2+"?id_eps="+eps+"&periodo="+periodo+mes)//AÑADIR LOCALIDAD CAUNDO NOS AVISEN
         .then((response) =>{
             return response.json()
         })
         .then((result) => {
-            console.log(result);
             if(result.length === 0){
                 this.setState({
-                    alerta : "No hay datos de la consulta."
+                    alert : "No hay CODIGOS para la consulta."
                 });
-            }else{
-                this.ordenarTableData(result);
+            }
+            this.setState({
+                codigos : result
+            });
+        });
+    }
+
+    prepararDataGrafico(result){
+        var obj = [];
+        var titaux = "";
+        if(this.state.tipo === "1"){
+            titaux = "CONSULTA DE VARIABLES DE "+this.state.epsNombre;
+        }
+        if(this.state.tipo === "2"){
+            titaux = "CONSULTA DE INDICADORES DE "+this.state.epsNombre;
+        }
+        for(var i in result){
+            obj.push({
+                "label": result[i].codvar,
+                "value": result[i].valor
+            })
+        }
+        this.setState({
+            chartData : obj,
+            prefijo : result[i].simvar,
+            titulo : titaux
+        })
+
+    }
+
+    fetchConsulta(){
+        this.setState({
+            empezarConsulta : false,
+            isTableLoaded : false,
+            isGraficoLoaded : false,
+            chartData : []
+        })
+        var aux1 = "";
+        var aux2 = "";
+        if (this.state.tipo === "1") {
+            aux1 = "variables";
+            aux2 = "Variables";
+        }
+        if (this.state.tipo === "2") {
+            aux1 = "indicadores";
+            aux2 = "Indicadores";
+        }
+        const data = {
+            eps : parseInt(this.state.eps,10),
+			localidad : parseInt(this.state.local,10),
+			periodo : this.state.periodo+this.state.mes,
+			acumulado : this.state.acumulado,
+			codigos : this.state.codigosAceptados
+        }
+        console.log(JSON.stringify(data));
+        fetch(this.state.hostname+"/APISunass/MainController/"+aux1+"/get"+aux2,{
+            method : 'POST',
+            headers : {
+                'Accept' : '*/*',
+                'Content-Type' : 'application/json; charset=UTF-8'
+            },
+            body : JSON.stringify(data)
+        })
+        .then((response) =>{
+            console.log("response: ");
+            console.log(response);
+            return response.json();
+        })
+        .then((result) => {
+            console.log("entro 2");
+            console.log(result);
+            if(result.length === 0){
+                this.setState({ alerta : "No hay datos de la consulta." });
             }
             this.setState({
                 dataSaldo : result
             });
-        });
-        this.setState({
-            tipoReal : this.state.tipo
-        });
-        this.setState({
-            isTableLoaded : true
+            if(this.state.tipoConsulta === "tabla"){
+                this.setState({
+                    isTableLoaded : true
+                })
+            }
+            if(this.state.tipoConsulta === "grafico"){
+                this.prepararDataGrafico(result);
+                this.setState({
+                    isGraficoLoaded : true
+                })
+            }
         });
     }
 
@@ -142,38 +202,27 @@ class App extends Component {
             tipoReal : "",
             dataSaldo : []
         });
-        var f = new Date();
-        if((f.getMonth() +1) < 10){
-            if(f.getDate() < 10){
-                this.setState({
-                    fechaActual : "0" + f.getDate() + "/0" + (f.getMonth() +1) + "/" + f.getFullYear(),
-                    fechaActualGuion : "0" + f.getDate() + "-0" + (f.getMonth() +1) + "-" + f.getFullYear()
-                });
-            }else{
-                this.setState({
-                    fechaActual : f.getDate() + "/0" + (f.getMonth() +1) + "/" + f.getFullYear(),
-                    fechaActualGuion : f.getDate() + "-0" + (f.getMonth() +1) + "-" + f.getFullYear()
-                });
-            }
-        }else{
-            if(f.getDate() < 10){
-                this.setState({
-                    fechaActual : "0" + f.getDate() + "/" + (f.getMonth() +1) + "/" + f.getFullYear(),
-                    fechaActualGuion : "0" + f.getDate() + "-" + (f.getMonth() +1) + "-" + f.getFullYear()
-                });
-            }else{
-                this.setState({
-                    fechaActual : f.getDate() + "/" + (f.getMonth() +1) + "/" + f.getFullYear(),
-                    fechaActualGuion : f.getDate() + "-" + (f.getMonth() +1) + "-" + f.getFullYear()
-                });
-            }
-        }
         if(this.state.eps !== "" && this.state.local !== "" && this.state.periodo !== "" && this.state.mes !== "" && this.state.tipo !== ""){
-            if(this.state.tipo !== "3"){                                                                    //BORRAR DESPUES
-                this.fetchData(this.state.eps,this.state.local,this.state.periodo,this.state.mes);
-            }else{                                                                                          //BORRAR DESPUES
-                this.setState({ tipoReal : "3"});                                                              //BORRAR DESPUES
-            }                                                                                               //BORRAR DESPUES
+            if(this.state.tipo === "1"){
+                this.fetchCodigos(this.state.eps,this.state.local,this.state.periodo,this.state.mes);
+                this.setState({
+                    tipoReal : "1",
+                    modalbool : true
+                });
+            }else{
+                if(this.state.tipo === "2"){
+                    this.fetchCodigos(this.state.eps,this.state.local,this.state.periodo,this.state.mes);
+                    this.setState({
+                        tipoReal : "2",
+                        modalbool : true
+                    });
+                }else{
+                    this.setState({
+                        tipoReal : "3",
+                        modalbool : true
+                    });
+                }
+            }
         }else{
             this.setState({
                 alerta : "Faltan campos por seleccionar.",
@@ -193,8 +242,28 @@ class App extends Component {
         });
     }
 
+    handleChangeEmpezarConsulta(valor){
+        this.setState({ empezarConsulta : valor })
+    }
+
     handleChangeLocal(event){
         this.setState({ local : event.target.value, periodo : "", alerta : "" });
+    }
+
+    handleChangeCodigosAceptados(c){
+        this.setState({ codigosAceptados : c });
+    }
+
+    handleChangeTipoConsulta(tipo){
+        this.setState({ tipoConsulta : tipo });
+    }
+
+    handleChangeAcumulado(a){
+        this.setState({ acumulado : a });
+    }
+
+    handleChangeFiltrar(event){
+        this.setState({ filtrar : !this.state.filtrar}  );
     }
 
     handleChangePeriodo(event){
@@ -227,6 +296,14 @@ class App extends Component {
 
     vaciarTipoReal(){
         this.setState({ tipoReal : "" })
+    }
+
+    vaciarModal(){
+        this.setState({ modalbool : false })
+    }
+
+    vaciarTipo(){
+        this.setState({ tipo : "" })
     }
 
     roundNumber(num, scale = 2) {
@@ -265,6 +342,9 @@ class App extends Component {
     render() {
         const listado = this.state.dataSaldo;
         console.log(listado);
+        if(this.state.empezarConsulta===true){
+            this.fetchConsulta();
+        }
         return (
             <div className="App">
                 <br/>
@@ -277,7 +357,7 @@ class App extends Component {
                                 <div className="col-3"></div>
                                 <div className="col-6">
                                     <a href="https://www.sunass.gob.pe/">
-                                        <img className="logo-sunass" alt="Enlace página SUNASS"src={require("./LOGO_VECTOR.png")}/>
+                                        <img className="logo-sunass" alt="Enlace página SUNASS" target="_blank" src={require("./LOGO_VECTOR.png")}/>
                                     </a>
                                 </div>
                                 <div className="col-3">
@@ -290,7 +370,7 @@ class App extends Component {
                                 </div>
                             </div>
                             <hr/>
-                            <div className="row  centrado">
+                            <div className="row centrado">
                                 <div className="col-6">
                                     <ComboEps eps={this.state.eps}
                                     onChange={this.handleChangeEps} onChange2={this.handleChangeEpsNombre} vaciarTodo={this.vaciarTodo} hostname={this.state.hostname}/>
@@ -302,8 +382,12 @@ class App extends Component {
                             </div>
                             <div className="row centrado">
                                 <div className="col-4">
-                                    <ComboTipo eps={this.state.eps} local={this.state.local} periodo={this.state.periodo} tipo={this.state.tipo}
-                                        onChange={this.handleChangeTipo} handleChangeDataSaldo={this.handleChangeDataSaldo} />
+                                    <div className="row">
+                                        <div className="col-12">
+                                            <ComboTipo eps={this.state.eps} local={this.state.local} periodo={this.state.periodo} tipo={this.state.tipo}
+                                                onChange={this.handleChangeTipo} handleChangeDataSaldo={this.handleChangeDataSaldo} />
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="col-4">
                                     <ComboPeriodo eps={this.state.eps} local={this.state.local} periodo={this.state.periodo} tipo={this.state.tipo}
@@ -316,7 +400,7 @@ class App extends Component {
                             </div>
                             <div className="row">
                                 <div className="col-12 centrado">
-                                    <button className="btn-enviar" onClick={this.botonEnviar}>Consultar</button>
+                                    <button className="btn-enviar" onClick={this.botonEnviar}>Enviar</button>
                                 </div>
                             </div>
                             <br/>
@@ -341,19 +425,21 @@ class App extends Component {
                     </div>):(null)
                 }
 
-                {(false) ?
-                    (<Chart
-                        chartData={this.state.chartData}
-                        grafico={this.state.grafico}
-                        legendPosition="bottom"
-                        titulo={this.state.titulo}
-                        paleta={this.state.colores}
-                        grad={this.state.grad}
-                        prefijo={this.state.prefijo}
-                        subtitulo={this.state.subtitulo}/>):(null)
+                {(this.state.isGraficoLoaded && this.state.tipoConsulta ==="grafico" && this.state.chartData.length !== 0) ? //CAMBIAR A LOS DATOS DE LA TABLA
+                    (
+                        <Chart
+                            chartData={this.state.chartData}
+                            grafico={this.state.grafico}
+                            legendPosition="bottom"
+                            titulo={this.state.titulo}
+                            paleta={this.state.colores}
+                            grad={this.state.grad}
+                            prefijo={this.state.prefijo}
+                        />
+                    ):(null)
                 }
 
-                {(this.state.isTableLoaded && listado.length !==0 && (this.state.tipoReal === "1" || this.state.tipoReal === "2"))?
+                {(this.state.isTableLoaded && this.state.tipoConsulta ==="tabla")?
                     (
                         <div className="contenido-tabla">
                             <div className="row centrado">
@@ -398,211 +484,20 @@ class App extends Component {
                     ):(null)
                 }
 
-                {this.state.tipoReal === "3"?
-                    (
-                        <div className="modal-rr">
-                            <div className="modal-dialog tam50">
-                                <div className="modal-content">
-                                    <div className="modal-body">
-                                        <div className="container">
-                                            <div className="row">
-                                                <div className="col-6">
-                                                    <div className="panel panel-default">
-                                                        <div className="panel-heading"><h5><b>Reportes Regulatorios</b></h5></div>
-                                                        <ul className="list-group">
-                                                            <li className="list-group-item">
-                                                                Anexo 5: Costos y gastos
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionDefault" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionDefault" className="label-default"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Anexo 2: Facturación e ingresos
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionPrimary" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionPrimary" className="label-primary"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Anexo 2: Activo fijo
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionSuccess" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionSuccess" className="label-success"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Anexo 3: Reporte de sanciones
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionInfo" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionInfo" className="label-info"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Anexo 4: Reporte de inversiones
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionInfo" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionInfo" className="label-info"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Anexo 6: Financiamiento
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionWarning" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionWarning" className="label-warning"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Anexo 6: Costos de producción
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionDanger" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionDanger" className="label-danger"></label>
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                    <br/>
-                                                    <div className="panel panel-default">
-                                                        <div className="panel-heading"><h5><b>Reportes de validación</b></h5></div>
-                                                        <ul className="list-group">
-                                                            <li className="list-group-item">
-                                                                Resumen de cuentas
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionDefault" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionDefault" className="label-default"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Consistencia de ingresos y egresos
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionPrimary" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionPrimary" className="label-primary"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Análisis de variación de existencias
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionSuccess" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionSuccess" className="label-success"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Cuentas sin movimientos
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionInfo" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionInfo" className="label-info"></label>
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                                <div className="col-6">
-                                                    <div className="panel panel-default">
-                                                        <div className="panel-heading"><h5><b>Reportes de Acompañamiento</b></h5></div>
-                                                        <ul className="list-group">
-                                                            <li className="list-group-item">
-                                                                Por cuenta contable
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionDefault" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionDefault" className="label-default"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Por cuenta contable comparativo
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionPrimary" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionPrimary" className="label-primary"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Saldos de transferencias
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionSuccess" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionSuccess" className="label-success"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Saldos de inversiones
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionInfo" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionInfo" className="label-info"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Variables de gestión
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionWarning" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionWarning" className="label-warning"></label>
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                    <br/>
-                                                    <div className="panel panel-default">
-                                                        <div className="panel-heading"><h5><b>Reportes para estudios tarifarios</b></h5></div>
-                                                        <ul className="list-group">
-                                                            <li className="list-group-item">
-                                                                Reporte ET-1: Variables de gestión
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionDefault" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionDefault" className="label-default"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Reporte ET-2: Servicios y procesos
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionPrimary" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionPrimary" className="label-primary"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Reporte ET-3: Anexo 5 Anualizado
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionSuccess" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionSuccess" className="label-success"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Reporte ET-4: Cuentas contables anualizado
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionInfo" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionInfo" className="label-info"></label>
-                                                                </div>
-                                                            </li>
-                                                            <li className="list-group-item">
-                                                                Reporte ET-5: Centros de costos anualizado
-                                                                <div className="material-switch pull-right">
-                                                                    <input id="someSwitchOptionWarning" name="someSwitchOption001" type="checkbox"/>
-                                                                    <label for="someSwitchOptionWarning" className="label-warning"></label>
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <div className="container-fluid">
-                                            <div className="row">
-                                                <div className="col-9"></div>
-                                                <div className="col-3">
-                                                    <div className="row">
-                                                        <div className="col-6">
-                                                            <button onClick={this.vaciarTipoReal} className="btn btn-secondary">Cancelar</button>
-                                                        </div>
-                                                        <div className="col-6">
-                                                            <button onClick={this.vaciarTipoReal} className="btn btn-primary">Generar</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ):(null)
+                {this.state.tipoReal === "1" && this.state.modalbool?
+                    (<ModalVariables vaciarModal={this.vaciarModal}  cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
+                        tipoGrafico={this.state.grafico} handleChangeTipoGrafico={this.handleChangeTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} fetch={this.fetchConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
+                        eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta}/>):(null)
+                }
+
+                {this.state.tipoReal === "2" && this.state.modalbool?
+                    (<ModalVariables vaciarModal={this.vaciarModal}  cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
+                        tipoGrafico={this.state.grafico} handleChangeTipoGrafico={this.handleChangeTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} fetch={this.fetchConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
+                        eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta}/>):(null)
+                }
+
+                {this.state.tipoReal === "3" && this.state.modalbool?
+                    (<ModalReportesRegulatorios vaciarModal={this.vaciarModal} opcionReporte={this.state.opcionReporte}/>):(null)
                 }
 
             </div>
