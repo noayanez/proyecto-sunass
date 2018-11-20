@@ -70,6 +70,7 @@ class App extends Component {
         this.handleChangeEmpezarConsulta = this.handleChangeEmpezarConsulta.bind(this);
         this.handleChangeTipoGrafico = this.handleChangeTipoGrafico.bind(this);
         this.fetchConsulta = this.fetchConsulta.bind(this);
+        this.cambiarAlerta = this.cambiarAlerta.bind(this);
         this.cambioGrad = this.cambioGrad.bind(this);
     }
 
@@ -130,6 +131,7 @@ class App extends Component {
                 "value": result[i].valor
             })
         }
+        console.log(result);
         this.setState({
             chartData : obj,
             prefijo : result[i].simvar,
@@ -363,7 +365,7 @@ class App extends Component {
         const leyenda = this.state.leyenda;
         console.log("LEYENDA.............");
         console.log(leyenda);
-        if(this.state.empezarConsulta===true){
+        if(this.state.empezarConsulta===true && this.state.codigosAceptados.length !== 0){
             this.fetchConsulta();
         }
 
@@ -527,13 +529,13 @@ class App extends Component {
                 {this.state.tipoReal === "1" && this.state.modalbool?
                     (<ModalVariables vaciarModal={this.vaciarModal} leyendar={this.handleChangeLeyenda} cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
                         tipoGrafico={this.state.grafico} handleChangeTipoGrafico={this.handleChangeTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} fetch={this.fetchConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
-                        eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta}/>):(null)
+                        eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta} cambiarAlerta={this.cambiarAlerta}/>):(null)
                 }
 
                 {this.state.tipoReal === "2" && this.state.modalbool?
                     (<ModalVariables vaciarModal={this.vaciarModal} leyendar={this.handleChangeLeyenda} cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
                         tipoGrafico={this.state.grafico} handleChangeTipoGrafico={this.handleChangeTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} fetch={this.fetchConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
-                        eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta}/>):(null)
+                        eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta} cambiarAlerta={this.cambiarAlerta}/>):(null)
                 }
 
                 {this.state.tipoReal === "3" && this.state.modalbool?

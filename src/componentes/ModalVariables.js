@@ -102,6 +102,13 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
     enviarDatos(){
         var codaux = [];
         var codaux2 = [];
+        var todosfalsos = true;
+        for(var i in this.state.codigos){
+            if(this.state.codigos[i][1]===true){
+                todosfalsos = false;
+            }
+        }
+
         for(var i in this.state.codigos){
             if(this.state.codigos[i][1]===true){
                 codaux.push(this.state.codigos[i][0]);
@@ -111,11 +118,18 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
                 });
             }
         }
+
         this.props.cambiarCodigos(codaux);
         this.props.leyendar(codaux2);
         this.props.cambiarAcumulado(this.state.acumulado);
         this.props.cambiarTipoConsulta(this.state.tipoConsulta);
-        this.props.cambiarEmpezarConsulta(true);
+
+        if(todosfalsos === false){
+            this.props.cambiarAlerta("");
+            this.props.cambiarEmpezarConsulta(true);
+        }else{
+            this.props.cambiarAlerta("No se selecionaron codigos para la consulta");
+        }
         this.props.vaciarModal();
     }
 
