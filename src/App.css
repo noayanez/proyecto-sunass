@@ -193,6 +193,10 @@
     max-width: 50%;
 }
 
+.alto60{
+    max-height: 400px;
+}
+
 /* The customcheck */
 .customcheck {
     display: block;

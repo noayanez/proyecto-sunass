@@ -15,6 +15,7 @@ class App extends Component {
         super();
         this.state = {
             codigos : [],
+            leyenda : [],
             codigosAceptados : [],
             tipoConsulta : "tabla",
             acumulado : false,
@@ -63,6 +64,7 @@ class App extends Component {
         this.limpiarAlerta = this.limpiarAlerta.bind(this);
         this.handleChangeFiltrar = this.handleChangeFiltrar.bind(this);
         this.handleChangeCodigosAceptados = this.handleChangeCodigosAceptados.bind(this);
+        this.handleChangeLeyenda = this.handleChangeLeyenda.bind(this);
         this.handleChangeTipoConsulta = this.handleChangeTipoConsulta.bind(this);
         this.handleChangeAcumulado = this.handleChangeAcumulado.bind(this);
         this.handleChangeEmpezarConsulta = this.handleChangeEmpezarConsulta.bind(this);
@@ -254,6 +256,10 @@ class App extends Component {
         this.setState({ codigosAceptados : c });
     }
 
+    handleChangeLeyenda(c){
+        this.setState({ leyenda : c });
+    }
+
     handleChangeTipoConsulta(tipo){
         this.setState({ tipoConsulta : tipo });
     }
@@ -306,6 +312,19 @@ class App extends Component {
         this.setState({ tipo : "" })
     }
 
+    parsearPeriodo(cadper){
+        var cadenaux = "";
+        if(cadper.length === 6){
+            cadenaux = cadenaux+cadper[4]+cadper[5]+"/";
+            cadenaux = cadenaux+cadper[0]+cadper[1]+cadper[2]+cadper[3];
+        }else{
+            cadenaux = cadenaux+cadper[6]+cadper[7]+"/";
+            cadenaux = cadenaux+cadper[4]+cadper[5]+"/";
+            cadenaux = cadenaux+cadper[0]+cadper[1]+cadper[2]+cadper[3];
+        }
+        return cadenaux;
+    }
+
     roundNumber(num, scale = 2) {
         if(!("" + num).includes("e")) {
             return +(Math.round(num + "e+" + scale)  + "e-" + scale);
@@ -341,10 +360,13 @@ class App extends Component {
 
     render() {
         const listado = this.state.dataSaldo;
-        console.log(listado);
+        const leyenda = this.state.leyenda;
+        console.log("LEYENDA.............");
+        console.log(leyenda);
         if(this.state.empezarConsulta===true){
             this.fetchConsulta();
         }
+
         return (
             <div className="App">
                 <br/>
@@ -426,27 +448,45 @@ class App extends Component {
                 }
 
                 {(this.state.isGraficoLoaded && this.state.tipoConsulta ==="grafico" && this.state.chartData.length !== 0) ? //CAMBIAR A LOS DATOS DE LA TABLA
-                    (
-                        <Chart
-                            chartData={this.state.chartData}
-                            grafico={this.state.grafico}
-                            legendPosition="bottom"
-                            titulo={this.state.titulo}
-                            paleta={this.state.colores}
-                            grad={this.state.grad}
-                            prefijo={this.state.prefijo}
-                        />
-                    ):(null)
+                    (<div className="row">
+                        <div className="col-1"></div>
+                        <div className="col-8">
+                            <Chart
+                                chartData={this.state.chartData}
+                                grafico={this.state.grafico}
+                                legendPosition="bottom"
+                                titulo={this.state.titulo}
+                                paleta={this.state.colores}
+                                grad={this.state.grad}
+                                prefijo={this.state.prefijo}
+                            />
+                        </div>
+                        <div className="col-2">
+                            {this.state.leyenda.length !== 0 ?
+                                (<table className="table table-hover table-light" id="tabla-principal">
+                                    <thead className="thead-dark">
+                                        <tr>
+                                            <th>Codigo</th>
+                                            <th>Descripcion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>{this.state.leyenda.map((dynamicData, i) =>
+                                        <tr key={i}>
+                                            <td>{dynamicData.codigo}</td>
+                                            <td>{dynamicData.descripcion}</td>
+                                        </tr>
+                                    )}
+                                    </tbody>
+                                </table>):(null)
+                            }
+                        </div>
+                        <div className="col-1"></div>
+                    </div>):(null)
                 }
 
                 {(this.state.isTableLoaded && this.state.tipoConsulta ==="tabla")?
                     (
                         <div className="contenido-tabla">
-                            <div className="row centrado">
-                                <div className="col-12">
-                                    <p><b>Moneda : PEN Soles</b></p>
-                                </div>
-                            </div>
                             <div className="row">
                                 <div className="col-2"></div>
                                 <div className="col-8">
@@ -457,12 +497,12 @@ class App extends Component {
                                                 <th>Codigo</th>
                                                 <th>Detalle</th>
                                                 <th style={{"textAlign":"right"}}>Valor</th>
-                                                <th style={{"textAlign":"center"}}>Simbolo</th>
+                                                <th style={{"textAlign":"center"}}>Unidad</th>
                                             </tr>
                                         </thead>
                                         <tbody>{listado.map((dynamicData, i) =>
                                             <tr key={i}>
-                                                <td>{dynamicData.fecultact}</td>
+                                                <td>{this.parsearPeriodo(dynamicData.fecultact)}</td>
                                                 {this.state.tipoReal==="1"?
                                                     (<td>{dynamicData.codvar}</td>):(<td>{dynamicData.codind}</td>)
                                                 }
@@ -485,13 +525,13 @@ class App extends Component {
                 }
 
                 {this.state.tipoReal === "1" && this.state.modalbool?
-                    (<ModalVariables vaciarModal={this.vaciarModal}  cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
+                    (<ModalVariables vaciarModal={this.vaciarModal} leyendar={this.handleChangeLeyenda} cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
                         tipoGrafico={this.state.grafico} handleChangeTipoGrafico={this.handleChangeTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} fetch={this.fetchConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
                         eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta}/>):(null)
                 }
 
                 {this.state.tipoReal === "2" && this.state.modalbool?
-                    (<ModalVariables vaciarModal={this.vaciarModal}  cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
+                    (<ModalVariables vaciarModal={this.vaciarModal} leyendar={this.handleChangeLeyenda} cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
                         tipoGrafico={this.state.grafico} handleChangeTipoGrafico={this.handleChangeTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} fetch={this.fetchConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
                         eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta}/>):(null)
                 }

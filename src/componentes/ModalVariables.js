@@ -55,26 +55,26 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
         var obj = [];
         for(var i in this.state.codigos){
             if(this.state.codigos[i][0]===event.target.value){
-                obj.push([this.state.codigos[i][0],!this.state.codigos[i][1]])
+                obj.push([this.state.codigos[i][0],!this.state.codigos[i][1],this.state.codigos[i][2]])
             }else{
-                obj.push([this.state.codigos[i][0],this.state.codigos[i][1]])
+                obj.push([this.state.codigos[i][0],this.state.codigos[i][1],this.state.codigos[i][2]])
             }
         }
         var flagtrue = true;
         var flagfalse = true;
-        for(var i in obj){
-            if(obj[i][1]===false){
+        for(var j in obj){
+            if(obj[j][1]===false){
                 flagtrue = false;
             }else{
                 flagfalse = false
             }
         }
-        if(flagtrue==false && flagfalse==false){
+        if(flagtrue===false && flagfalse===false){
             this.setState({
                 todos : false
             });
         }else{
-            if(flagtrue==true && flagfalse==false){
+            if(flagtrue===true && flagfalse===false){
                 this.setState({
                     todos : true
                 });
@@ -92,7 +92,7 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
     crearCodigosSeleccionados(){
         var obj = [];
         for(var i in this.props.codigos){
-            obj.push([this.props.codigos[i][0],false]);
+            obj.push([this.props.codigos[i][0],false,this.props.codigos[i][1]]);
         }
         this.setState({
             codigos : obj
@@ -101,12 +101,18 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
 
     enviarDatos(){
         var codaux = [];
+        var codaux2 = [];
         for(var i in this.state.codigos){
             if(this.state.codigos[i][1]===true){
                 codaux.push(this.state.codigos[i][0]);
+                codaux2.push({
+                    "codigo":this.state.codigos[i][0],
+                    "descripcion":this.state.codigos[i][2]
+                });
             }
         }
         this.props.cambiarCodigos(codaux);
+        this.props.leyendar(codaux2);
         this.props.cambiarAcumulado(this.state.acumulado);
         this.props.cambiarTipoConsulta(this.state.tipoConsulta);
         this.props.cambiarEmpezarConsulta(true);
@@ -116,83 +122,35 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
     crearOpciones1(){
         const objs = [];
         for(var i in this.state.codigos){
-            if(i<this.state.codigos.length/3){
-                objs.push(
-                    <div key={i*5} className="row">
-                        <div key={i*6+1} className="col-2"></div>
-                        <div key={i*6+1} className="col-1">
-                            <label className="customcheck">
-                                <input key={i*6+2} type="checkbox" value={this.state.codigos[i][0]} onChange={this.editCodigos} checked={this.state.codigos[i][1]} />
-                                <span className="checkmark"></span>
-                            </label>
-                        </div>
-                        <div key={i*6+3} className="col-6"><h5>{this.state.codigos[i][0]}</h5></div>
-                        <div key={i*6+4} className="col-3"></div>
+            objs.push(
+                <div key={i*7} className="row">
+                    <div key={i*7+1} className="col-1"></div>
+                    <div key={i*7+2} className="col-1">
+                        <label key={i*7+3} className="customcheck">
+                            <input key={i*7+4} type="checkbox" value={this.state.codigos[i][0]} onChange={this.editCodigos} checked={this.state.codigos[i][1]} />
+                            <span key={i*7+5} className="checkmark"></span>
+                        </label>
                     </div>
-                );
-            }
-        }
-        return objs;
-    }
-
-    crearOpciones2(){
-        const objs = [];
-        for(var i in this.state.codigos){
-            if(this.state.codigos.length/3<=i && i<(this.state.codigos.length/3)*2){
-                objs.push(
-                    <div key={i*6} className="row">
-                        <div key={i*6+1} className="col-2"></div>
-                        <div key={i*6+2} className="col-1">
-                            <label className="customcheck">
-                                <input key={i*6+3} type="checkbox" value={this.state.codigos[i][0]} onChange={this.editCodigos} checked={this.state.codigos[i][1]} />
-                                <span className="checkmark"></span>
-                            </label>
-                        </div>
-                        <div key={i*6+4} className="col-6"><h5>{this.state.codigos[i][0]}</h5></div>
-                        <div key={i*6+5} className="col-3"></div>
-                    </div>
-                );
-            }
-        }
-        return objs;
-    }
-
-    crearOpciones3(){
-        const objs = [];
-        for(var i in this.state.codigos){
-            if((this.state.codigos.length/3)*2<=i && i<this.state.codigos.length){
-                objs.push(
-                    <div key={i*5} className="row">
-                        <div key={i*6+1} className="col-2"></div>
-                        <div key={i*6+1} className="col-1" onChange={this.editCodigos}>
-                            <label className="customcheck">
-                                <input key={i*6+2} type="checkbox" value={this.state.codigos[i][0]} onChange={this.editCodigos} checked={this.state.codigos[i][1]} />
-                                <span className="checkmark"></span>
-                            </label>
-                        </div>
-                        <div key={i*6+3} className="col-6"><h5>{this.state.codigos[i][0]}</h5></div>
-                        <div key={i*6+4} className="col-3"></div>
-                    </div>
-                );
-            }
+                    <div key={i*7+6} className="col-10"><h5>{this.state.codigos[i][0]+" : "+this.state.codigos[i][2]}</h5></div>
+                </div>
+            );
         }
         return objs;
     }
 
     marcarTodos(){
+        var obj = [];
         if(this.state.todos===false){
-            var obj = [];
             for(var i in this.state.codigos){
-                obj.push([this.state.codigos[i][0],true]);
+                obj.push([this.state.codigos[i][0],true,this.state.codigos[i][2]]);
             }
             this.setState({
                 codigos : obj,
                 todos : true
             });
         }else{
-            var obj = [];
-            for(var i in this.state.codigos){
-                obj.push([this.state.codigos[i][0],false]);
+            for(var j in this.state.codigos){
+                obj.push([this.state.codigos[j][0],false,this.state.codigos[j][2]]);
             }
             this.setState({
                 codigos : obj,
@@ -222,7 +180,8 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
                                             </div>
                                             <select className="custom-select" id="select-acum" value={this.state.acumulado} onChange={this.handleChangeAcumulado}>
                                                 <option key={1} value={true}>Acumulado</option>
-                                                <option key={2} value={false}>No acumulado</option>
+                                                <option key={2} value={false}>Del periodo</option>
+                                                <option key={3} value={"3"} disabled>Seguimiento</option>
                                             </select>
                                         </div>
                                     </div>
@@ -281,33 +240,19 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
                                     <div className="col-9"></div>
                                 </div>
                                 <br/>
-                                <div className="row">
-                                    <div className="col-4">
-                                        <div className="row">
-                                            <div className="col-2"></div>
-                                            <div className="col-1">
-                                                <label className="customcheck">
-                                                    <input type="checkbox" onChange={this.marcarTodos} checked={this.state.todos} />
-                                                    <span className="checkmark"></span>
-                                                </label>
-                                            </div>
-                                            <div className="col-6"><h5>Todos</h5></div>
-                                            <div className="col-3"></div>
+                                <div className="alto60" style={{"overflow":"scroll"}}>
+                                    <div className="row">
+                                        <div className="col-1"></div>
+                                        <div className="col-1">
+                                            <label className="customcheck">
+                                                <input type="checkbox" onChange={this.marcarTodos} checked={this.state.todos} />
+                                                <span className="checkmark"></span>
+                                            </label>
                                         </div>
+                                        <div className="col-10"><h5>Todos</h5></div>
                                     </div>
-                                    <div className="col-8"></div>
-                                </div>
-                                <br/>
-                                <div className="row centrado">
-                                    <div className="col-4">
-                                        {this.crearOpciones1()}
-                                    </div>
-                                    <div className="col-4">
-                                        {this.crearOpciones2()}
-                                    </div>
-                                    <div className="col-4">
-                                        {this.crearOpciones3()}
-                                    </div>
+                                    <br/>
+                                    {this.crearOpciones1()}
                                 </div>
                             </div>
                         </div>
