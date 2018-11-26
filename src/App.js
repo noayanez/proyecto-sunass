@@ -77,6 +77,7 @@ class App extends Component {
         this.cambiarAlerta = this.cambiarAlerta.bind(this);
         this.cambioGrad = this.cambioGrad.bind(this);
         this.armarDataChart = this.armarDataChart.bind(this);
+        this.armarDataChart2 = this.armarDataChart2.bind(this);
         this.generarMes = this.generarMes.bind(this);
     }
 
@@ -127,6 +128,93 @@ class App extends Component {
                     "data" : data
                 }
             );
+        }
+        var category = { "category" : categories };
+        var tit = "";
+        if(this.state.tipoReal==="1"){
+            tit="VARIABLES ";
+        }else{
+            if(this.state.tipoReal==="2"){
+                tit="INDICADORES ";
+            }
+        }
+        var dataSource = {
+            "chart" : {
+                "bgColor" : "#F4F4F4",
+                "bgAlpha" : "100",
+                "caption": "SEGUIMIENTO DE "+tit+this.state.epsNombre,
+                "numvisibleplot": "8",
+                "palettecolors":"5d62b5,29c3be,f2726f",
+                "showPlotBorder": "0",
+                "exportEnabled": "1",
+                "usePlotGradientColor": this.state.grad,
+                "formatNumberScale" : "0",
+                "labeldisplay": "auto",
+                "baseFont": "Calibri",
+                "baseFontSize": "16"
+            },
+            "categories" : [category],
+            "dataset" : dataset
+        }
+
+        this.setState({
+            dataSource : dataSource
+        });
+        console.log(JSON.stringify(dataSource));
+    }
+
+    armarDataChart2(array){
+        var numeromes = 0;
+        if(this.state.mes === "01"){ numeromes = 1 }
+        else{ if(this.state.mes === "02"){ numeromes = 2 }
+            else{if(this.state.mes === "03"){ numeromes = 3 }
+                else{if(this.state.mes === "04"){ numeromes = 4 }
+                    else{if(this.state.mes === "05"){ numeromes = 5 }
+                        else{if(this.state.mes === "06"){ numeromes = 6 }
+                            else{if(this.state.mes === "07"){ numeromes = 7 }
+                                else{if(this.state.mes === "08"){ numeromes = 8 }
+                                    else{if(this.state.mes === "09"){ numeromes = 9 }
+                                        else{if(this.state.mes === "10"){ numeromes = 10 }
+                                            else{if(this.state.mes === "11"){ numeromes = 11 }
+                                                else{if(this.state.mes === "12"){ numeromes = 12 }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        var categories = [];
+        for(var i=0; i<numeromes;i++){
+            categories.push({"label": this.generarMes(i+1)} );
+        }
+        var dataset = [];
+        for(var i=0; i<this.state.codigosAceptados.length;i++){
+            var data = [];
+            for(var j=0;j<numeromes;j++){
+                data.push(
+                    { "value" : array[(i*numeromes)+j].valor}
+                );
+            }
+            if(this.state.tipoReal==="1"){
+                dataset.push(
+                    {
+                        "seriesname" : array[i*numeromes].codvar,
+                        "data" : data
+                    }
+                );
+            }else{
+                dataset.push(
+                    {
+                        "seriesname" : array[i*numeromes].codind,
+                        "data" : data
+                    }
+                );
+            }
         }
         var category = { "category" : categories };
         var tit = "";
@@ -364,7 +452,11 @@ class App extends Component {
             }
             console.log(result);
             if(this.state.tipoConsulta === "grafico"){
-                this.armarDataChart(result);
+                if(this.state.grafico !== "msarea" && this.state.grafico !== "msline" && this.state.grafico !== "msspline"){
+                    this.armarDataChart(result);
+                }else{
+                    this.armarDataChart2(result);
+                }
                 this.setState({
                     isGraficoLoaded : true
                 })
