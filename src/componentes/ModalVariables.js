@@ -10,7 +10,7 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
             alertaux : "",
             acumulado : props.acumulado,
             tipoConsulta : props.tipoConsulta,
-            tipoGrafico : "column2d",
+            tipoGrafico : props.tipoGrafico,
             grad : "0",
             todos : false
         }
@@ -44,7 +44,12 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
     }
 
     handleChangeAcumulado(event){
-        this.setState({ acumulado : !this.state.acumulado })
+        this.setState({ acumulado : event.target.value });
+        if(event.target.value !== "3"){
+            this.setState({ tipoGrafico : "column2d" })
+        }else{
+            this.setState({ tipoGrafico : "scrollcolumn2d" })
+        }
     }
 
     cerrarModal(){
@@ -109,12 +114,12 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
             }
         }
 
-        for(var i in this.state.codigos){
-            if(this.state.codigos[i][1]===true){
-                codaux.push(this.state.codigos[i][0]);
+        for(var j in this.state.codigos){
+            if(this.state.codigos[j][1]===true){
+                codaux.push(this.state.codigos[j][0]);
                 codaux2.push({
-                    "codigo":this.state.codigos[i][0],
-                    "descripcion":this.state.codigos[i][2]
+                    "codigo":this.state.codigos[j][0],
+                    "descripcion":this.state.codigos[j][2]
                 });
             }
         }
@@ -123,6 +128,7 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
         this.props.leyendar(codaux2);
         this.props.cambiarAcumulado(this.state.acumulado);
         this.props.cambiarTipoConsulta(this.state.tipoConsulta);
+        this.props.cambiarTipoGrafico(this.state.tipoGrafico);
 
         if(todosfalsos === false){
             this.props.cambiarAlerta("");
@@ -193,9 +199,9 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
                                                 <label className="input-group-text label-titulo" htmlFor="select-acum">Acumulado</label>
                                             </div>
                                             <select className="custom-select" id="select-acum" value={this.state.acumulado} onChange={this.handleChangeAcumulado}>
-                                                <option key={1} value={true}>Acumulado</option>
-                                                <option key={2} value={false}>Del periodo</option>
-                                                <option key={3} value={"3"} disabled>Seguimiento</option>
+                                                <option key={1} value={false}>Del periodo</option>
+                                                <option key={2} value={true}>Acumulado</option>
+                                                <option key={3} value={"3"}>Seguimiento</option>
                                             </select>
                                         </div>
                                     </div>
@@ -215,23 +221,45 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
                                     (
                                         <div className="row">
                                             <div className="col-6">
-                                                <div className="input-group mb-3">
-                                                    <div className="input-group-prepend">
-                                                        <label className="input-group-text label-titulo" htmlFor="select-acum">Tipo de grafico</label>
-                                                    </div>
-                                                    <select className="custom-select" id="select-grad" value={this.props.tipoGrafico} onChange={this.props.handleChangeTipoGrafico}>
-                                                        <option value="line">LINEA</option>
-                                                        <option value="area2d">AREA 2D</option>
-                                                        <option value="column2d">BARRAS 2D</option>
-                                                        <option value="column3d">BARRAS 3D</option>
-                                                        <option value="pie2d">PIE 2D</option>
-                                                        <option value="pie3d">PIE 3D</option>
-                                                        <option value="doughnut2d">DONUT 2D</option>
-                                                        <option value="doughnut2d">DONUT 3D</option>
-                                                        <option value="pareto2d">PARETO 2D</option>
-                                                        <option value="pareto3d">PARETO 3D</option>
-                                                    </select>
-                                                </div>
+                                                {this.state.acumulado==="3"?
+                                                    (
+                                                        <div className="input-group mb-3">
+                                                            <div className="input-group-prepend">
+                                                                <label className="input-group-text label-titulo" htmlFor="select-acum">Tipo de grafico</label>
+                                                            </div>
+                                                            <select className="custom-select" id="select-grad" value={this.state.tipoGrafico} onChange={this.handleChangeTipoGrafico}>
+                                                                <option value="scrollcolumn2d">COLUMNAS 2D</option>
+                                                                <option value="mscolumn3d">COLUMNAS 3D</option>
+                                                                <option value="msbar2d">BARRAS 2D</option>
+                                                                <option value="msbar3d">BARRAS 3D</option>
+                                                                <option value="msarea">AREA 2D</option>
+                                                                <option value="msline">LINEA</option>
+                                                                <option value="msspline">SPLINE</option>
+                                                            </select>
+                                                        </div>
+                                                    ):(
+                                                        <div className="input-group mb-3">
+                                                            <div className="input-group-prepend">
+                                                                <label className="input-group-text label-titulo" htmlFor="select-acum">Tipo de grafico</label>
+                                                            </div>
+                                                            <select className="custom-select" id="select-grad" value={this.state.tipoGrafico} onChange={this.handleChangeTipoGrafico}>
+                                                                <option value="column2d">COLUMNAS 2D</option>
+                                                                <option value="column3d">COLUMNAS 3D</option>
+                                                                <option value="bar2d">BARRAS 2D</option>
+                                                                <option value="bar3d">BARRAS 3D</option>
+                                                                <option value="area2d">AREA 2D</option>
+                                                                <option value="line">LINEA</option>
+                                                                <option value="pie2d">PIE 2D</option>
+                                                                <option value="pie3d">PIE 3D</option>
+                                                                <option value="doughnut2d">DONUT 2D</option>
+                                                                <option value="doughnut3d">DONUT 3D</option>
+                                                                <option value="pareto2d">PARETO 2D</option>
+                                                                <option value="pareto3d">PARETO 3D</option>
+                                                            </select>
+                                                        </div>
+                                                    )
+
+                                                }
                                             </div>
                                             <div className="col-6">
                                                 <div className="input-group mb-3">
@@ -239,8 +267,8 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
                                                         <label className="input-group-text label-titulo" htmlFor="select-tipoc">Gradiente</label>
                                                     </div>
                                                     <select className="custom-select" id="select-tipoc" value={this.props.gradiente} onChange={this.props.cambioGrad}>
-                                                        <option value={"0"}>Solido</option>
-                                                        <option value={"1"}>Desvanecido</option>
+                                                        <option value={"0"}>Desactivado</option>
+                                                        <option value={"1"}>Activado</option>
                                                     </select>
                                                 </div>
                                             </div>

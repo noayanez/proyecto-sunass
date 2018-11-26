@@ -7,6 +7,7 @@ import ComboTipo from './componentes/comboTipo.js';
 import ModalReportesRegulatorios from './componentes/ModalReportesRegulatorios.js';
 import ModalVariables from './componentes/ModalVariables.js';
 import Chart from './componentes/chart.js'
+import Chart0 from './componentes/chart0.js'
 import './App.css';
 
 class App extends Component {
@@ -14,6 +15,7 @@ class App extends Component {
     constructor(){
         super();
         this.state = {
+            dataSource : {},
             codigos : [],
             leyenda : [],
             codigosAceptados : [],
@@ -41,7 +43,6 @@ class App extends Component {
             chartData : [], //usado para dar datos al FusionChart (cuadro)
             titulo: 'AQUI VA EL TITULO', //usado para el titulo del cuadro
             grafico : 'column2d', //usado para el tipo de grafico del cuadro
-            colores : "", //usado para el tipo de color del cuadro/grafico
             grad : "0", //usado para el gradiente del cuadro
             prefijo : "", //usado para el prefijo del cuadro
             modalbool : false,
@@ -68,10 +69,115 @@ class App extends Component {
         this.handleChangeTipoConsulta = this.handleChangeTipoConsulta.bind(this);
         this.handleChangeAcumulado = this.handleChangeAcumulado.bind(this);
         this.handleChangeEmpezarConsulta = this.handleChangeEmpezarConsulta.bind(this);
+        this.cambiarTipoGrafico = this.cambiarTipoGrafico.bind(this);
         this.handleChangeTipoGrafico = this.handleChangeTipoGrafico.bind(this);
         this.fetchConsulta = this.fetchConsulta.bind(this);
+        this.fetchAcumNoAcum = this.fetchAcumNoAcum.bind(this);
+        this.fetchSeguimiento = this.fetchSeguimiento.bind(this);
         this.cambiarAlerta = this.cambiarAlerta.bind(this);
         this.cambioGrad = this.cambioGrad.bind(this);
+        this.armarDataChart = this.armarDataChart.bind(this);
+        this.generarMes = this.generarMes.bind(this);
+    }
+
+    armarDataChart(array){
+        var numeromes = 0;
+        if(this.state.mes === "01"){ numeromes = 1 }
+        else{ if(this.state.mes === "02"){ numeromes = 2 }
+            else{if(this.state.mes === "03"){ numeromes = 3 }
+                else{if(this.state.mes === "04"){ numeromes = 4 }
+                    else{if(this.state.mes === "05"){ numeromes = 5 }
+                        else{if(this.state.mes === "06"){ numeromes = 6 }
+                            else{if(this.state.mes === "07"){ numeromes = 7 }
+                                else{if(this.state.mes === "08"){ numeromes = 8 }
+                                    else{if(this.state.mes === "09"){ numeromes = 9 }
+                                        else{if(this.state.mes === "10"){ numeromes = 10 }
+                                            else{if(this.state.mes === "11"){ numeromes = 11 }
+                                                else{if(this.state.mes === "12"){ numeromes = 12 }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        var categories = [];
+        for(var i=0; i<this.state.codigosAceptados.length;i++){
+            if(this.state.tipoReal ==="1"){
+                categories.push({"label": array[i*numeromes].codvar} );
+            }else{
+                categories.push({"label": array[i*numeromes].codind} );
+            }
+        }
+        var dataset = [];
+        for(var i=0; i<numeromes;i++){
+            var data = [];
+            for(var j=0;j<this.state.codigosAceptados.length;j++){
+                data.push(
+                    { "value" : array[(j*numeromes)+i].valor}
+                );
+            }
+            dataset.push(
+                {
+                    "seriesname" : this.generarMes(i+1),
+                    "data" : data
+                }
+            );
+        }
+        var category = { "category" : categories };
+        var tit = "";
+        if(this.state.tipoReal==="1"){
+            tit="VARIABLES ";
+        }else{
+            if(this.state.tipoReal==="2"){
+                tit="INDICADORES ";
+            }
+        }
+        var dataSource = {
+            "chart" : {
+                "bgColor" : "#F4F4F4",
+                "bgAlpha" : "100",
+                "caption": "SEGUIMIENTO DE "+tit+this.state.epsNombre,
+                "numvisibleplot": "8",
+                "palettecolors":"5d62b5,29c3be,f2726f",
+                "showPlotBorder": "0",
+                "exportEnabled": "1",
+                "usePlotGradientColor": this.state.grad,
+                "formatNumberScale" : "0",
+                "labeldisplay": "auto",
+                "baseFont": "Calibri",
+                "baseFontSize": "16"
+            },
+            "categories" : [category],
+            "dataset" : dataset
+        }
+
+        this.setState({
+            dataSource : dataSource
+        });
+        console.log(JSON.stringify(dataSource));
+    }
+
+    generarMes(numeromes){
+        switch(numeromes){
+            case 1 : return "Enero";
+            case 2 : return "Febrero";
+            case 3 : return "Marzo";
+            case 4 : return "Abril";
+            case 5 : return "Mayo";
+            case 6 : return "Junio";
+            case 7 : return "Julio";
+            case 8 : return "Agosto";
+            case 9 : return "Septiembre";
+            case 10 : return "Octubre";
+            case 11 : return "Noviembre";
+            case 12 : return "Diciembre";
+        }
+
     }
 
     limpiarAlerta(){
@@ -88,6 +194,10 @@ class App extends Component {
 
     handleChangeTipoGrafico(event){
         this.setState({ grafico : event.target.value })
+    }
+
+    cambiarTipoGrafico(e){
+        this.setState({ grafico : e })
     }
 
     fetchCodigos(eps,local,periodo,mes){
@@ -141,11 +251,21 @@ class App extends Component {
     }
 
     fetchConsulta(){
+        if(this.state.acumulado === "3"){
+            this.fetchSeguimiento();
+        }else{
+            this.fetchAcumNoAcum();
+        }
+    }
+
+    fetchAcumNoAcum(){
+        console.log("ENTRO: ACUM O NO ACUM");
         this.setState({
             empezarConsulta : false,
             isTableLoaded : false,
             isGraficoLoaded : false,
-            chartData : []
+            chartData : [],
+            dataSource : {}
         })
         var aux1 = "";
         var aux2 = "";
@@ -174,13 +294,9 @@ class App extends Component {
             body : JSON.stringify(data)
         })
         .then((response) =>{
-            console.log("response: ");
-            console.log(response);
             return response.json();
         })
         .then((result) => {
-            console.log("entro 2");
-            console.log(result);
             if(result.length === 0){
                 this.setState({ alerta : "No hay datos de la consulta." });
             }
@@ -194,6 +310,61 @@ class App extends Component {
             }
             if(this.state.tipoConsulta === "grafico"){
                 this.prepararDataGrafico(result);
+                this.setState({
+                    isGraficoLoaded : true
+                })
+            }
+        });
+    }
+
+    fetchSeguimiento(){
+        console.log("ENTRO: SEGUIMIENTO");
+        this.setState({
+            empezarConsulta : false,
+            isTableLoaded : false,
+            isGraficoLoaded : false,
+            chartData : [],
+            dataSource : {}
+        })
+        var aux1 = "";
+        if (this.state.tipo === "1") {
+            aux1 = "variables";
+        }
+        if (this.state.tipo === "2") {
+            aux1 = "indicadores";
+        }
+        const data = {
+            eps : parseInt(this.state.eps,10),
+			localidad : parseInt(this.state.local,10),
+			periodo : this.state.periodo+this.state.mes,
+			codigos : this.state.codigosAceptados
+        }
+        fetch(this.state.hostname+"/APISunass/MainController/"+aux1+"/seguimiento",{
+            method : 'POST',
+            headers : {
+                'Accept' : '*/*',
+                'Content-Type' : 'application/json; charset=UTF-8'
+            },
+            body : JSON.stringify(data)
+        })
+        .then((response) =>{
+            return response.json();
+        })
+        .then((result) => {
+            if(result.length === 0){
+                this.setState({ alerta : "No hay datos de la consulta." });
+            }
+            this.setState({
+                dataSaldo : result
+            });
+            if(this.state.tipoConsulta === "tabla"){
+                this.setState({
+                    isTableLoaded : true
+                })
+            }
+            console.log(result);
+            if(this.state.tipoConsulta === "grafico"){
+                this.armarDataChart(result);
                 this.setState({
                     isGraficoLoaded : true
                 })
@@ -362,9 +533,6 @@ class App extends Component {
 
     render() {
         const listado = this.state.dataSaldo;
-        const leyenda = this.state.leyenda;
-        console.log("LEYENDA.............");
-        console.log(leyenda);
         if(this.state.empezarConsulta===true && this.state.codigosAceptados.length !== 0){
             this.fetchConsulta();
         }
@@ -449,19 +617,27 @@ class App extends Component {
                     </div>):(null)
                 }
 
-                {(this.state.isGraficoLoaded && this.state.tipoConsulta ==="grafico" && this.state.chartData.length !== 0) ? //CAMBIAR A LOS DATOS DE LA TABLA
+                {(this.state.isGraficoLoaded && this.state.tipoConsulta ==="grafico") ? //CAMBIAR A LOS DATOS DE LA TABLA
                     (<div className="row">
                         <div className="col-1"></div>
                         <div className="col-8">
-                            <Chart
-                                chartData={this.state.chartData}
-                                grafico={this.state.grafico}
-                                legendPosition="bottom"
-                                titulo={this.state.titulo}
-                                paleta={this.state.colores}
-                                grad={this.state.grad}
-                                prefijo={this.state.prefijo}
-                            />
+                            {this.state.acumulado !=="3"  && this.state.chartData.length !== 0?
+                                (
+                                    <Chart
+                                        chartData={this.state.chartData}
+                                        grafico={this.state.grafico}
+                                        legendPosition="bottom"
+                                        titulo={this.state.titulo}
+                                        grad={this.state.grad}
+                                        prefijo={this.state.prefijo}
+                                    />
+                                ):(
+                                    <Chart0
+                                        dataSource={this.state.dataSource}
+                                        type={this.state.grafico}
+                                    />
+                                )
+                            }
                         </div>
                         <div className="col-2">
                             {this.state.leyenda.length !== 0 ?
@@ -528,13 +704,13 @@ class App extends Component {
 
                 {this.state.tipoReal === "1" && this.state.modalbool?
                     (<ModalVariables vaciarModal={this.vaciarModal} leyendar={this.handleChangeLeyenda} cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
-                        tipoGrafico={this.state.grafico} handleChangeTipoGrafico={this.handleChangeTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} fetch={this.fetchConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
+                        tipoGrafico={this.state.grafico} cambiarTipoGrafico={this.cambiarTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} fetch={this.fetchConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
                         eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta} cambiarAlerta={this.cambiarAlerta}/>):(null)
                 }
 
                 {this.state.tipoReal === "2" && this.state.modalbool?
                     (<ModalVariables vaciarModal={this.vaciarModal} leyendar={this.handleChangeLeyenda} cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
-                        tipoGrafico={this.state.grafico} handleChangeTipoGrafico={this.handleChangeTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} fetch={this.fetchConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
+                        tipoGrafico={this.state.grafico} cambiarTipoGrafico={this.cambiarTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} fetch={this.fetchConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
                         eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta} cambiarAlerta={this.cambiarAlerta}/>):(null)
                 }
 

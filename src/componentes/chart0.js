@@ -7,33 +7,16 @@ import ReactFC from 'react-fusioncharts';
 Charts(FusionCharts);
 OceanTheme(FusionCharts);
 
-class Chart extends Component{
+class Chart0 extends Component{
     constructor(props){
         super(props);
         this.state = {
-            type : props.grafico,
+            type : props.type,
             renderAt: "chart-container",
             width: '100%',
             height: '600',
             dataFormat: 'json',
-            dataSource: {
-                "chart": {
-                    "bgColor" : "#F4F4F4",
-                    "bgAlpha" : "100",
-                    "baseFont": "Calibri",
-                    "baseFontSize": "16",
-                    'caption': props.titulo,
-                    "palettecolors":"5d62b5,29c3be,f2726f",
-                    "showPlotBorder": "0",
-                    'numberPrefix': props.prefijo,
-                    "formatNumberScale" : "0",
-                    "exportEnabled": "1",
-                    "usePlotGradientColor": props.grad
-                },
-                data:
-                    props.chartData,
-
-            },
+            dataSource : props.dataSource
         };
         this.handleChangeTipo = this.handleChangeTipo.bind(this);
     }
@@ -44,15 +27,12 @@ class Chart extends Component{
         });
     }
 
-
     static defaultProps = {
         displayTitle : true,
         textTitle : "Titulo",
         displayLegend : true,
         legendPosition : 'right'
     }
-
-
 
     render(){
         return (
@@ -63,4 +43,4 @@ class Chart extends Component{
     }
 }
 
-export default Chart;
+export default Chart0;

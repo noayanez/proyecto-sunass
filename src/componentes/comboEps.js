@@ -26,7 +26,7 @@ class ComboEps extends Component {
     fetchDataEps(){
         fetch(this.props.hostname+"/APISunass/MainController/getEps")
         .then((response) =>{
-            console.log(response); //SE MUESTRA LOS EPS QUE FETCHEAMOS
+            //console.log(response); //SE MUESTRA LOS EPS QUE FETCHEAMOS
             if(response.status === 404){
                 return [];
             }else{
