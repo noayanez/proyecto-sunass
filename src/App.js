@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import ComboEps from './componentes/comboEps.js';
+import ComboGrupo from './componentes/comboGrupo.js';
 import ComboLocal from './componentes/comboLocal.js';
 import ComboPeriodo from './componentes/comboPeriodo.js';
+import ComboPeriodoGrupo from './componentes/comboPeriodoGrupo.js';
 import ComboMes from './componentes/comboMes.js';
 import ComboTipo from './componentes/comboTipo.js';
 import ModalReportesRegulatorios from './componentes/ModalReportesRegulatorios.js';
@@ -20,7 +22,7 @@ class App extends Component {
             leyenda : [],
             codigosAceptados : [],
             tipoConsulta : "tabla",
-            acumulado : false,
+            acumulado : "1",
             empezarConsulta : false,
             hostname : "http://179.43.88.86:8080", //HAY QUE AÑADIR UN HOSTNAME PARA QUE FUNCIONE LA APLICACION WEB
             eps : "",
@@ -46,11 +48,16 @@ class App extends Component {
             grad : "0", //usado para el gradiente del cuadro
             prefijo : "", //usado para el prefijo del cuadro
             modalbool : false,
+            select : "1",
+            grupo : "",
+            grupoNombre : ""
         };
         this.handleChangeEps = this.handleChangeEps.bind(this);
+        this.handleChangeGrupo = this.handleChangeGrupo.bind(this);
         this.vaciarTodo = this.vaciarTodo.bind(this);
         this.vaciarPeriodo = this.vaciarPeriodo.bind(this);
         this.handleChangeEpsNombre = this.handleChangeEpsNombre.bind(this);
+        this.handleChangeGrupoNombre = this.handleChangeGrupoNombre.bind(this);
         this.handleChangeLocal = this.handleChangeLocal.bind(this);
         this.handleChangePeriodo = this.handleChangePeriodo.bind(this);
         this.handleChangeMes = this.handleChangeMes.bind(this);
@@ -68,6 +75,8 @@ class App extends Component {
         this.handleChangeLeyenda = this.handleChangeLeyenda.bind(this);
         this.handleChangeTipoConsulta = this.handleChangeTipoConsulta.bind(this);
         this.handleChangeAcumulado = this.handleChangeAcumulado.bind(this);
+        this.handleChangeSelect1 = this.handleChangeSelect1.bind(this);
+        this.handleChangeSelect2 = this.handleChangeSelect2.bind(this);
         this.handleChangeEmpezarConsulta = this.handleChangeEmpezarConsulta.bind(this);
         this.cambiarTipoGrafico = this.cambiarTipoGrafico.bind(this);
         this.handleChangeTipoGrafico = this.handleChangeTipoGrafico.bind(this);
@@ -115,16 +124,16 @@ class App extends Component {
             }
         }
         var dataset = [];
-        for(var i=0; i<numeromes;i++){
+        for(var n=0; n<numeromes;n++){
             var data = [];
-            for(var j=0;j<this.state.codigosAceptados.length;j++){
+            for(var m=0;m<this.state.codigosAceptados.length;m++){
                 data.push(
-                    { "value" : array[(j*numeromes)+i].valor}
+                    { "value" : array[(m*numeromes)+n].valor}
                 );
             }
             dataset.push(
                 {
-                    "seriesname" : this.generarMes(i+1),
+                    "seriesname" : this.generarMes(n+1),
                     "data" : data
                 }
             );
@@ -132,17 +141,25 @@ class App extends Component {
         var category = { "category" : categories };
         var tit = "";
         if(this.state.tipoReal==="1"){
-            tit="VARIABLES ";
+            if(this.state.select==="1"){
+                tit="VARIABLES DE "+this.state.epsNombre;
+            }else{
+                tit = "VARIABLES DE EMPRESAS "+this.state.grupoNombre.toUpperCase();
+            }
         }else{
             if(this.state.tipoReal==="2"){
-                tit="INDICADORES ";
+                if(this.state.select==="1"){
+                    tit="INDICADORES DE "+this.state.epsNombre;
+                }else{
+                    tit = "INDICADORES DE EMPRESAS "+this.state.grupoNombre.toUpperCase();
+                }
             }
         }
         var dataSource = {
             "chart" : {
                 "bgColor" : "#F4F4F4",
                 "bgAlpha" : "100",
-                "caption": "SEGUIMIENTO DE "+tit+this.state.epsNombre,
+                "caption": "SEGUIMIENTO DE "+tit,
                 "numvisibleplot": "8",
                 "palettecolors":"5d62b5,29c3be,f2726f",
                 "showPlotBorder": "0",
@@ -189,11 +206,11 @@ class App extends Component {
             }
         }
         var categories = [];
-        for(var i=0; i<numeromes;i++){
+        for(let i=0; i<numeromes;i++){
             categories.push({"label": this.generarMes(i+1)} );
         }
         var dataset = [];
-        for(var i=0; i<this.state.codigosAceptados.length;i++){
+        for(let i=0; i<this.state.codigosAceptados.length;i++){
             var data = [];
             for(var j=0;j<numeromes;j++){
                 data.push(
@@ -219,10 +236,18 @@ class App extends Component {
         var category = { "category" : categories };
         var tit = "";
         if(this.state.tipoReal==="1"){
-            tit="VARIABLES ";
+            if(this.state.select==="1"){
+                tit="VARIABLES DE "+this.state.epsNombre;
+            }else{
+                tit = "VARIABLES DE EMPRESAS "+this.state.grupoNombre.toUpperCase();
+            }
         }else{
             if(this.state.tipoReal==="2"){
-                tit="INDICADORES ";
+                if(this.state.select==="1"){
+                    tit="INDICADORES DE "+this.state.epsNombre;
+                }else{
+                    tit = "INDICADORES DE EMPRESAS "+this.state.grupoNombre.toUpperCase();
+                }
             }
         }
         var dataSource = {
@@ -264,6 +289,7 @@ class App extends Component {
             case 10 : return "Octubre";
             case 11 : return "Noviembre";
             case 12 : return "Diciembre";
+            default : return null;
         }
 
     }
@@ -314,14 +340,58 @@ class App extends Component {
         });
     }
 
+    fetchCodigosGrupo(grupo,periodo,mes){
+        var param1 = "";
+        if(this.state.tipo==="1"){
+            param1 = "variables";
+        }else{
+            param1 = "indicadores";
+        }
+        const data = {
+            grupo : grupo,
+            periodo : periodo+mes
+        }
+        fetch(this.state.hostname+"/APISunass/MainController/"+param1+"/codigosGrupos",{
+            method : 'POST',
+            headers : {
+                'Accept' : '*/*',
+                'Content-Type' : 'application/json; charset=UTF-8',
+                'token' : 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aXBvIjoyLCJjb3JyZW8iOiJnaXpAZ2l6LmdvYi5wZSIsImlzcyI6ImF1dGgwIiwiaWQiOjIsImlhdCI6MTU0NDI5NTA4OH0.-FXKZS6U-q15-YsTss1xs2415RO2THd_aGqcLm20Zr4'
+            },
+            body : JSON.stringify(data)
+        })
+        .then((response) =>{
+            return response.json()
+        })
+        .then((result) => {
+            console.log(result);
+            if(result.length === 0){
+                this.setState({
+                    alert : "No hay CODIGOS para la consulta."
+                });
+            }
+            this.setState({
+                codigos : result
+            });
+        });
+    }
+
     prepararDataGrafico(result){
         var obj = [];
         var titaux = "";
         if(this.state.tipo === "1"){
-            titaux = "CONSULTA DE VARIABLES DE "+this.state.epsNombre;
+            if(this.state.select==="1"){
+                titaux = "CONSULTA DE VARIABLES DE "+this.state.epsNombre;
+            }else{
+                titaux = "CONSULTA DE VARIABLES DE EMPRESAS "+this.state.grupoNombre.toUpperCase();
+            }
         }
         if(this.state.tipo === "2"){
-            titaux = "CONSULTA DE INDICADORES DE "+this.state.epsNombre;
+            if(this.state.select==="1"){
+                titaux = "CONSULTA DE INDICADORES DE "+this.state.epsNombre;
+            }else{
+                titaux = "CONSULTA DE INDICADORES DE EMPRESAS "+this.state.grupoNombre.toUpperCase();
+            }
         }
         for(var i in result){
             obj.push({
@@ -335,14 +405,25 @@ class App extends Component {
             prefijo : result[i].simvar,
             titulo : titaux
         })
-
     }
 
     fetchConsulta(){
-        if(this.state.acumulado === "3"){
-            this.fetchSeguimiento();
+        if(this.state.select==="1"){
+            if(this.state.acumulado === "3"){
+                this.fetchSeguimiento();
+            }else{
+                this.fetchAcumNoAcum();
+            }
         }else{
-            this.fetchAcumNoAcum();
+            if(this.state.tipoReal==="1"){
+                this.fetchConsultaPorGrupo("variables/obtenerVariables");
+            }else{
+                if(this.state.tipoReal==="2"){
+                    this.fetchConsultaPorGrupo("indicadores/obtenerIndicadores");
+                }else{
+                    console.log("AUN NO SE IMPLEMENTA . . .");
+                }
+            }
         }
     }
 
@@ -365,11 +446,17 @@ class App extends Component {
             aux1 = "indicadores";
             aux2 = "Indicadores";
         }
+        var ac = true;
+        if(this.state.acumulado==="1"){
+            ac = true;
+        }else{
+            ac = false;
+        }
         const data = {
             eps : parseInt(this.state.eps,10),
 			localidad : parseInt(this.state.local,10),
 			periodo : this.state.periodo+this.state.mes,
-			acumulado : this.state.acumulado,
+			acumulado : ac,
 			codigos : this.state.codigosAceptados
         }
         console.log(JSON.stringify(data));
@@ -464,37 +551,133 @@ class App extends Component {
         });
     }
 
+    fetchConsultaPorGrupo(cadena){
+        console.log("ENTRO: CONSULTA GRUPO");
+        this.setState({
+            empezarConsulta : false,
+            isTableLoaded : false,
+            isGraficoLoaded : false,
+            chartData : [],
+            dataSource : {}
+        });
+        var data ={
+            grupo : this.state.grupo,
+            periodo : this.state.periodo+this.state.mes,
+            tipo : this.state.acumulado,
+            codigos : this.state.codigosAceptados
+        }
+        console.log(data);
+        fetch(this.state.hostname+"/APISunass/MainController/"+cadena,{
+            method : 'POST',
+            headers : {
+                'Accept' : '*/*',
+                'Content-Type' : 'application/json; charset=UTF-8',
+                'token' : 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aXBvIjoyLCJjb3JyZW8iOiJnaXpAZ2l6LmdvYi5wZSIsImlzcyI6ImF1dGgwIiwiaWQiOjIsImlhdCI6MTU0NDI5NTA4OH0.-FXKZS6U-q15-YsTss1xs2415RO2THd_aGqcLm20Zr4'
+            },
+            body : JSON.stringify(data)
+        })
+        .then((response) =>{
+            console.log(response); //SE MUESTRA LA RESPUESTA DE LA PETICION
+            if(response.status === 404){ //      || response.status === 400){
+                return [];
+            }else{
+                return response.json()
+            }
+        })
+        .then((result) => {
+            console.log(result);
+            if(result.length === 0){
+                this.setState({ alerta : "No hay datos de la consulta." });
+            }
+            this.setState({
+                dataSaldo : result
+            });
+            if(this.state.tipoConsulta === "tabla"){
+                this.setState({
+                    isTableLoaded : true
+                })
+            }
+            if(this.state.tipoConsulta === "grafico"){
+                if(this.state.acumulado ==="3"){
+                    if(this.state.grafico !== "msarea" && this.state.grafico !== "msline" && this.state.grafico !== "msspline"){
+                        this.armarDataChart(result);
+                    }else{
+                        this.armarDataChart2(result);
+                    }
+                    this.setState({
+                        isGraficoLoaded : true
+                    })
+                }else{
+                    this.prepararDataGrafico(result);
+                    this.setState({
+                        isGraficoLoaded : true
+                    })
+                }
+            }
+        })
+    }
+
     botonEnviar(eps,local,periodo,mes){
         this.setState({
             tipoReal : "",
             dataSaldo : []
         });
-        if(this.state.eps !== "" && this.state.local !== "" && this.state.periodo !== "" && this.state.mes !== "" && this.state.tipo !== ""){
-            if(this.state.tipo === "1"){
-                this.fetchCodigos(this.state.eps,this.state.local,this.state.periodo,this.state.mes);
-                this.setState({
-                    tipoReal : "1",
-                    modalbool : true
-                });
-            }else{
-                if(this.state.tipo === "2"){
+        if(this.state.select==="1"){
+            if(this.state.eps !== "" && this.state.local !== "" && this.state.periodo !== "" && this.state.mes !== "" && this.state.tipo !== ""){
+                if(this.state.tipo === "1"){
                     this.fetchCodigos(this.state.eps,this.state.local,this.state.periodo,this.state.mes);
                     this.setState({
-                        tipoReal : "2",
+                        tipoReal : "1",
                         modalbool : true
                     });
                 }else{
-                    this.setState({
-                        tipoReal : "3",
-                        modalbool : true
-                    });
+                    if(this.state.tipo === "2"){
+                        this.fetchCodigos(this.state.eps,this.state.local,this.state.periodo,this.state.mes);
+                        this.setState({
+                            tipoReal : "2",
+                            modalbool : true
+                        });
+                    }else{
+                        this.setState({
+                            tipoReal : "3",
+                            modalbool : true
+                        });
+                    }
                 }
+            }else{
+                this.setState({
+                    alerta : "Faltan campos por seleccionar.",
+                    isTableLoaded : false
+                });
             }
         }else{
-            this.setState({
-                alerta : "Faltan campos por seleccionar.",
-                isTableLoaded : false
-            });
+            if(this.state.grupo !== ""  && this.state.periodo !== "" && this.state.mes !== "" && this.state.tipo !== ""){
+                if(this.state.tipo === "1"){
+                    this.fetchCodigosGrupo(this.state.grupo,this.state.periodo,this.state.mes);
+                    this.setState({
+                        tipoReal : "1",
+                        modalbool : true
+                    });
+                }else{
+                    if(this.state.tipo === "2"){
+                        this.fetchCodigosGrupo(this.state.grupo,this.state.periodo,this.state.mes);
+                        this.setState({
+                            tipoReal : "2",
+                            modalbool : true
+                        });
+                    }else{
+                        this.setState({
+                            tipoReal : "3",
+                            modalbool : true
+                        });
+                    }
+                }
+            }else{
+                this.setState({
+                    alerta : "Faltan campos por seleccionar.",
+                    isTableLoaded : false
+                });
+            }
         }
     }
 
@@ -503,6 +686,17 @@ class App extends Component {
             isLocalLoaded : false,
             isPeriodoLoaded : false,
             eps : event.target.value,
+            local : "",
+            periodo : "",
+            alerta : ""
+        });
+    }
+
+    handleChangeGrupo(event){
+        this.setState({
+            isLocalLoaded : false,
+            isPeriodoLoaded : false,
+            grupo : event.target.value,
             local : "",
             periodo : "",
             alerta : ""
@@ -557,8 +751,22 @@ class App extends Component {
         this.setState({ epsNombre : nombre })
     }
 
+    handleChangeGrupoNombre(nombre){
+        this.setState({ grupoNombre : nombre })
+    }
+
+    handleChangeSelect1(){
+        this.vaciarTodo();
+        this.setState({ select : "1" });
+    }
+
+    handleChangeSelect2(){
+        this.vaciarTodo();
+        this.setState({ select : "2" });
+    }
+
     vaciarTodo(){
-        this.setState({ eps : "", epsNombre : "", local : "", periodo : "", mes : "" });
+        this.setState({ eps : "", epsNombre : "", local : "", periodo : "", mes : "", grupo : "", tipo : "" });
     }
 
     vaciarPeriodo(){
@@ -653,29 +861,63 @@ class App extends Component {
                                     </div>
                                 </div>
                             </div>
-                            <hr/>
-                            <div className="row centrado">
-                                <div className="col-6">
-                                    <ComboEps eps={this.state.eps}
-                                    onChange={this.handleChangeEps} onChange2={this.handleChangeEpsNombre} vaciarTodo={this.vaciarTodo} hostname={this.state.hostname}/>
-                                </div>
-                                <div className="col-6">
-                                    <ComboLocal eps={this.state.eps} local={this.state.local}
-                                    onChange={this.handleChangeLocal} hostname={this.state.hostname}/>
-                                </div>
-                            </div>
+                            <br/>
+
+                            {this.state.select==="1"?
+                                (
+                                    <div>
+                                        <div className="row nav nav-tabs" id="nav-tab" role="tablist">
+                                            <label className="col-6 centrado tab-activado ">Empresas</label>
+                                            <label className="col-6 centrado tab " onClick={this.handleChangeSelect2}>Grupos</label>
+                                        </div>
+                                        <br/>
+                                        <div className="row centrado">
+                                            <div className="col-6">
+                                                <ComboEps eps={this.state.eps}
+                                                onChange={this.handleChangeEps} onChange2={this.handleChangeEpsNombre} vaciarTodo={this.vaciarTodo} hostname={this.state.hostname}/>
+                                            </div>
+                                            <div className="col-6">
+                                                <ComboLocal eps={this.state.eps} local={this.state.local}
+                                                onChange={this.handleChangeLocal} hostname={this.state.hostname}/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ):(
+                                    <div>
+                                        <div className="row nav nav-tabs" id="nav-tab" role="tablist">
+                                            <label className="col-6 centrado tab " onClick={this.handleChangeSelect1}>Empresas</label>
+                                            <label className="col-6 centrado tab-activado ">Grupos</label>
+                                        </div>
+                                        <br/>
+                                        <div className="row centrado">
+                                            <div className="col-12">
+                                                <ComboGrupo grupo={this.state.grupo}
+                                                onChange={this.handleChangeGrupo} onChange2={this.handleChangeGrupoNombre} vaciarTodo={this.vaciarTodo} hostname={this.state.hostname}/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            }
+
                             <div className="row centrado">
                                 <div className="col-4">
                                     <div className="row">
                                         <div className="col-12">
-                                            <ComboTipo eps={this.state.eps} local={this.state.local} periodo={this.state.periodo} tipo={this.state.tipo}
+                                            <ComboTipo eps={this.state.eps} grupo={this.state.grupo} local={this.state.local} tipo={this.state.tipo}
                                                 onChange={this.handleChangeTipo} handleChangeDataSaldo={this.handleChangeDataSaldo} />
                                         </div>
                                     </div>
                                 </div>
                                 <div className="col-4">
-                                    <ComboPeriodo eps={this.state.eps} local={this.state.local} periodo={this.state.periodo} tipo={this.state.tipo}
-                                    onChange={this.handleChangePeriodo} vaciarPeriodo={this.vaciarPeriodo} hostname={this.state.hostname}/>
+                                    {this.state.select==="1"?
+                                        (
+                                            <ComboPeriodo eps={this.state.eps} local={this.state.local} periodo={this.state.periodo} tipo={this.state.tipo}
+                                            onChange={this.handleChangePeriodo} vaciarPeriodo={this.vaciarPeriodo} hostname={this.state.hostname}/>
+                                        ):(
+                                            <ComboPeriodoGrupo grupo={this.state.grupo} periodo={this.state.periodo} tipo={this.state.tipo}
+                                            onChange={this.handleChangePeriodo} vaciarPeriodo={this.vaciarPeriodo} hostname={this.state.hostname}/>
+                                        )
+                                    }
                                 </div>
                                 <div className="col-4">
                                     <ComboMes mes={this.state.mes}
@@ -692,8 +934,8 @@ class App extends Component {
                         <div className="col-2"></div>
                     </div>
                 </div>
-
                 <br/>
+
                 {this.state.alerta!==""?
                     (<div className="row">
                         <div className="col-2"></div>
@@ -760,33 +1002,69 @@ class App extends Component {
                             <div className="row">
                                 <div className="col-2"></div>
                                 <div className="col-8">
-                                    <table className="table table-hover table-light" id="tabla-principal">
-                                        <thead className="thead-dark">
-                                            <tr>
-                                                <th>Fecha de registro</th>
-                                                <th>Codigo</th>
-                                                <th>Detalle</th>
-                                                <th style={{"textAlign":"right"}}>Valor</th>
-                                                <th style={{"textAlign":"center"}}>Unidad</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>{listado.map((dynamicData, i) =>
-                                            <tr key={i}>
-                                                <td>{this.parsearPeriodo(dynamicData.fecultact)}</td>
-                                                {this.state.tipoReal==="1"?
-                                                    (<td>{dynamicData.codvar}</td>):(<td>{dynamicData.codind}</td>)
-                                                }
-                                                {this.state.tipoReal==="1"?
-                                                    (<td>{dynamicData.desvar}</td>):(<td>{dynamicData.desind}</td>)
-                                                }
-                                                <td align="right">{this.formatNumber(dynamicData.valor)}</td>
-                                                {this.state.tipoReal==="1"?
-                                                    (<td style={{"textAlign":"center"}}>{dynamicData.simvar}</td>):(<td style={{"textAlign":"center"}}>{dynamicData.simind}</td>)
-                                                }
-                                            </tr>
-                                        )}
-                                        </tbody>
-                                    </table>
+                                    {this.state.select==="1"?
+                                        (
+                                            <table className="table table-hover table-light" id="tabla-principal">
+                                                <thead className="thead-dark">
+                                                    <tr>
+                                                        <th>Fecha de registro</th>
+                                                        <th>Codigo</th>
+                                                        <th>Detalle</th>
+                                                        <th style={{"textAlign":"right"}}>Valor</th>
+                                                        <th style={{"textAlign":"center"}}>Unidad</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>{listado.map((dynamicData, i) =>
+                                                    <tr key={i}>
+                                                        <td>{this.parsearPeriodo(dynamicData.fecultact)}</td>
+                                                        {this.state.tipoReal==="1"?
+                                                            (<td>{dynamicData.codvar}</td>):(<td>{dynamicData.codind}</td>)
+                                                        }
+                                                        {this.state.tipoReal==="1"?
+                                                            (<td>{dynamicData.desvar}</td>):(<td>{dynamicData.desind}</td>)
+                                                        }
+                                                        <td align="right">{this.formatNumber(dynamicData.valor)}</td>
+                                                        {this.state.tipoReal==="1"?
+                                                            (<td style={{"textAlign":"center"}}>{dynamicData.simvar}</td>):(<td style={{"textAlign":"center"}}>{dynamicData.simind}</td>)
+                                                        }
+                                                    </tr>
+                                                )}
+                                                </tbody>
+                                            </table>
+                                        ):(
+                                            <table className="table table-hover table-light" id="tabla-principal">
+                                                <thead className="thead-dark">
+                                                    <tr>
+                                                        {this.state.acumulado==="3"?
+                                                            (<th>Fecha de registro</th>):(null)
+                                                        }
+                                                        <th>Codigo</th>
+                                                        <th>Detalle</th>
+                                                        <th style={{"textAlign":"right"}}>Valor</th>
+                                                        <th style={{"textAlign":"center"}}>Unidad</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>{listado.map((dynamicData, i) =>
+                                                    <tr key={i}>
+                                                        {this.state.acumulado==="3"?
+                                                            (<td>{this.parsearPeriodo(dynamicData.periodo)}</td>):(null)
+                                                        }
+                                                        {this.state.tipoReal==="1"?
+                                                            (<td>{dynamicData.codvar}</td>):(<td>{dynamicData.codind}</td>)
+                                                        }
+                                                        {this.state.tipoReal==="1"?
+                                                            (<td>{dynamicData.desvar}</td>):(<td>{dynamicData.desind}</td>)
+                                                        }
+                                                        <td align="right">{this.formatNumber(dynamicData.valor)}</td>
+                                                        {this.state.tipoReal==="1"?
+                                                            (<td style={{"textAlign":"center"}}>{dynamicData.simvar}</td>):(<td style={{"textAlign":"center"}}>{dynamicData.simind}</td>)
+                                                        }
+                                                    </tr>
+                                                )}
+                                                </tbody>
+                                            </table>
+                                        )
+                                    }
                                 </div>
                                 <div className="col-2"></div>
                             </div>
@@ -796,13 +1074,13 @@ class App extends Component {
 
                 {this.state.tipoReal === "1" && this.state.modalbool?
                     (<ModalVariables vaciarModal={this.vaciarModal} leyendar={this.handleChangeLeyenda} cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
-                        tipoGrafico={this.state.grafico} cambiarTipoGrafico={this.cambiarTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} fetch={this.fetchConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
+                        tipoGrafico={this.state.grafico} cambiarTipoGrafico={this.cambiarTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
                         eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta} cambiarAlerta={this.cambiarAlerta}/>):(null)
                 }
 
                 {this.state.tipoReal === "2" && this.state.modalbool?
                     (<ModalVariables vaciarModal={this.vaciarModal} leyendar={this.handleChangeLeyenda} cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
-                        tipoGrafico={this.state.grafico} cambiarTipoGrafico={this.cambiarTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} fetch={this.fetchConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
+                        tipoGrafico={this.state.grafico} cambiarTipoGrafico={this.cambiarTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
                         eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta} cambiarAlerta={this.cambiarAlerta}/>):(null)
                 }
 

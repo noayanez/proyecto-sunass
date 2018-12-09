@@ -196,11 +196,11 @@ class ModalVariables extends Component { // AUN EN DESARROLLO
                                     <div className="col-6">
                                         <div className="input-group mb-3">
                                             <div className="input-group-prepend">
-                                                <label className="input-group-text label-titulo" htmlFor="select-acum">Acumulado</label>
+                                                <label className="input-group-text label-titulo" htmlFor="select-acum">Modo</label>
                                             </div>
                                             <select className="custom-select" id="select-acum" value={this.state.acumulado} onChange={this.handleChangeAcumulado}>
-                                                <option key={1} value={false}>Del periodo</option>
-                                                <option key={2} value={true}>Acumulado</option>
+                                                <option key={1} value={"1"}>Del periodo</option>
+                                                <option key={2} value={"2"}>Acumulado</option>
                                                 <option key={3} value={"3"}>Seguimiento</option>
                                             </select>
                                         </div>

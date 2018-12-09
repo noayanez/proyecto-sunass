@@ -264,3 +264,39 @@
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
 }
+
+.nav-tabs {
+    border-bottom: 1px solid transparent;
+}
+
+.nav-tabs .tab-activado {
+    border-top: 2px solid #4386ca ;
+    border-left: 1px solid gainsboro ;
+    border-right: 1px solid gainsboro;
+    border-bottom: 1px solid transparent;
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+    display: block;
+    padding-top: 0.5rem;
+    padding-right: 1rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+    font-weight: bold; 
+}
+.nav-tabs .tab {
+    border-top: 2px solid gainsboro ;
+    border-left: 1px solid gainsboro ;
+    border-right: 1px solid gainsboro;
+    border-bottom: 1px solid transparent;
+    border-top-left-radius: .25rem;
+    border-top-right-radius: .25rem;
+    display: block;
+    padding-top: 0.5rem;
+    padding-right: 1rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+}
+
+.nav-tabs .tab:hover{
+    cursor : pointer
+}

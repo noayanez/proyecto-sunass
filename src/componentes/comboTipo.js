@@ -1,37 +1,6 @@
 import React, { Component } from 'react';
 
-class ComboPeriodo extends Component {
-
-    constructor(props){
-        super(props);
-        this.state = {
-            eps : props.eps,
-            local : props.local,
-            periodo : props.periodo,
-            tipo : props.tipo
-        }
-    }
-
-    componentDidUpdate(){
-        if(this.state.periodo !== this.props.periodo){
-            this.setState({
-                local : this.props.periodo
-            });
-        }
-        if(this.state.local !== this.props.local){
-            this.setState({
-                periodo : this.props.periodo,
-                local : this.props.local
-            });
-        }
-        if(this.state.eps !== this.props.eps){
-            this.setState({
-                periodo : this.props.periodo,
-                local : this.props.local,
-                eps : this.props.eps
-            });
-        }
-    }
+class ComboTipo extends Component {
 
     render(){
         return(
@@ -50,4 +19,4 @@ class ComboPeriodo extends Component {
     }
 }
 
-export default ComboPeriodo;
+export default ComboTipo;
