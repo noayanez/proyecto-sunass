@@ -255,7 +255,7 @@ class App extends Component {
             "chart" : {
                 "bgColor" : "#F4F4F4",
                 "bgAlpha" : "100",
-                "caption": "SEGUIMIENTO DE "+tit+this.state.epsNombre,
+                "caption": "SEGUIMIENTO DE "+tit,
                 "numvisibleplot": "8",
                 "palettecolors":"5d62b5,29c3be,f2726f",
                 "showPlotBorder": "0",
