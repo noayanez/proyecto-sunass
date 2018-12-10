@@ -385,6 +385,12 @@ class App extends Component {
             }else{
                 titaux = "CONSULTA DE VARIABLES DE EMPRESAS "+this.state.grupoNombre.toUpperCase();
             }
+            for(var i in result){
+                obj.push({
+                    "label": result[i].codvar,
+                    "value": result[i].valor
+                })
+            }
         }
         if(this.state.tipo === "2"){
             if(this.state.select==="1"){
@@ -392,13 +398,14 @@ class App extends Component {
             }else{
                 titaux = "CONSULTA DE INDICADORES DE EMPRESAS "+this.state.grupoNombre.toUpperCase();
             }
+            for(let i in result){
+                obj.push({
+                    "label": result[i].codind,
+                    "value": result[i].valor
+                })
+            }
         }
-        for(var i in result){
-            obj.push({
-                "label": result[i].codvar,
-                "value": result[i].valor
-            })
-        }
+
         console.log(result);
         this.setState({
             chartData : obj,
@@ -472,22 +479,23 @@ class App extends Component {
             return response.json();
         })
         .then((result) => {
-            if(result.length === 0){
-                this.setState({ alerta : "No hay datos de la consulta." });
-            }
             this.setState({
                 dataSaldo : result
             });
-            if(this.state.tipoConsulta === "tabla"){
-                this.setState({
-                    isTableLoaded : true
-                })
-            }
-            if(this.state.tipoConsulta === "grafico"){
-                this.prepararDataGrafico(result);
-                this.setState({
-                    isGraficoLoaded : true
-                })
+            if(result.length === 0){
+                this.setState({ alerta : "No hay datos de la consulta." });
+            }else{
+                if(this.state.tipoConsulta === "tabla"){
+                    this.setState({
+                        isTableLoaded : true
+                    })
+                }
+                if(this.state.tipoConsulta === "grafico"){
+                    this.prepararDataGrafico(result);
+                    this.setState({
+                        isGraficoLoaded : true
+                    })
+                }
             }
         });
     }
@@ -586,32 +594,33 @@ class App extends Component {
         })
         .then((result) => {
             console.log(result);
-            if(result.length === 0){
-                this.setState({ alerta : "No hay datos de la consulta." });
-            }
             this.setState({
                 dataSaldo : result
             });
-            if(this.state.tipoConsulta === "tabla"){
-                this.setState({
-                    isTableLoaded : true
-                })
-            }
-            if(this.state.tipoConsulta === "grafico"){
-                if(this.state.acumulado ==="3"){
-                    if(this.state.grafico !== "msarea" && this.state.grafico !== "msline" && this.state.grafico !== "msspline"){
-                        this.armarDataChart(result);
+            if(result.length === 0){
+                this.setState({ alerta : "No hay datos de la consulta." });
+            }else{
+                if(this.state.tipoConsulta === "tabla"){
+                    this.setState({
+                        isTableLoaded : true
+                    })
+                }
+                if(this.state.tipoConsulta === "grafico"){
+                    if(this.state.acumulado ==="3"){
+                        if(this.state.grafico !== "msarea" && this.state.grafico !== "msline" && this.state.grafico !== "msspline"){
+                            this.armarDataChart(result);
+                        }else{
+                            this.armarDataChart2(result);
+                        }
+                        this.setState({
+                            isGraficoLoaded : true
+                        })
                     }else{
-                        this.armarDataChart2(result);
+                        this.prepararDataGrafico(result);
+                        this.setState({
+                            isGraficoLoaded : true
+                        })
                     }
-                    this.setState({
-                        isGraficoLoaded : true
-                    })
-                }else{
-                    this.prepararDataGrafico(result);
-                    this.setState({
-                        isGraficoLoaded : true
-                    })
                 }
             }
         })
@@ -951,7 +960,7 @@ class App extends Component {
                     </div>):(null)
                 }
 
-                {(this.state.isGraficoLoaded && this.state.tipoConsulta ==="grafico") ? //CAMBIAR A LOS DATOS DE LA TABLA
+                {(this.state.isGraficoLoaded && this.state.tipoConsulta ==="grafico" && this.state.dataSaldo.length !== 0) ? //CAMBIAR A LOS DATOS DE LA TABLA
                     (<div className="row">
                         <div className="col-1"></div>
                         <div className="col-8">
