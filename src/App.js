@@ -996,7 +996,7 @@ class App extends Component {
                     </div>):(null)
                 }
 
-                {(this.state.isTableLoaded && this.state.tipoConsulta ==="tabla")?
+                {(this.state.isTableLoaded && this.state.tipoConsulta ==="tabla" && this.state.dataSaldo.length !== 0)?
                     (
                         <div className="contenido-tabla">
                             <div className="row">
