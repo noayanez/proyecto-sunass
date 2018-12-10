@@ -50,7 +50,8 @@ class App extends Component {
             modalbool : false,
             select : "1",
             grupo : "",
-            grupoNombre : ""
+            grupoNombre : "",
+            boolcodigos : false
         };
         this.handleChangeEps = this.handleChangeEps.bind(this);
         this.handleChangeGrupo = this.handleChangeGrupo.bind(this);
@@ -331,7 +332,12 @@ class App extends Component {
         .then((result) => {
             if(result.length === 0){
                 this.setState({
-                    alert : "No hay CODIGOS para la consulta."
+                    alerta : "No hay CODIGOS para la consulta.",
+                    boolcodigos : false
+                });
+            }else{
+                this.setState({
+                    boolcodigos : true
                 });
             }
             this.setState({
@@ -367,7 +373,12 @@ class App extends Component {
             console.log(result);
             if(result.length === 0){
                 this.setState({
-                    alert : "No hay CODIGOS para la consulta."
+                    alerta : "No hay CODIGOS para la consulta.",
+                    boolcodigos : false
+                });
+            }else{
+                this.setState({
+                    boolcodigos : true
                 });
             }
             this.setState({
@@ -1081,13 +1092,13 @@ class App extends Component {
                     ):(null)
                 }
 
-                {this.state.tipoReal === "1" && this.state.modalbool?
+                {this.state.tipoReal === "1" && this.state.modalbool && this.state.boolcodigos === true?
                     (<ModalVariables vaciarModal={this.vaciarModal} leyendar={this.handleChangeLeyenda} cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
                         tipoGrafico={this.state.grafico} cambiarTipoGrafico={this.cambiarTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
                         eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta} cambiarAlerta={this.cambiarAlerta}/>):(null)
                 }
 
-                {this.state.tipoReal === "2" && this.state.modalbool?
+                {this.state.tipoReal === "2" && this.state.modalbool && this.state.boolcodigos === true?
                     (<ModalVariables vaciarModal={this.vaciarModal} leyendar={this.handleChangeLeyenda} cambiarCodigos={this.handleChangeCodigosAceptados} cambiarAcumulado={this.handleChangeAcumulado} gradiente={this.state.grad} cambioGrad={this.cambioGrad}
                         tipoGrafico={this.state.grafico} cambiarTipoGrafico={this.cambiarTipoGrafico} cambiarTipoConsulta={this.handleChangeTipoConsulta} cambiarEmpezarConsulta={this.handleChangeEmpezarConsulta}
                         eps={this.state.eps} local={this.state.local} periodo={this.state.periodo+this.state.mes} codigos={this.state.codigos} acumulado={this.state.acumulado} tipoConsulta={this.state.tipoConsulta} cambiarAlerta={this.cambiarAlerta}/>):(null)
