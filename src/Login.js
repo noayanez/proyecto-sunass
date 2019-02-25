@@ -10,7 +10,7 @@ class Login extends Component {
             pass: '',
             error: false,
             isLogged: props.isLogged,
-            hostname: 'http://179.43.88.86:8080'
+            hostname: this.props.hostname
         }
         this.fetchLogin = this.fetchLogin.bind(this);
         this.handleChangeUser = this.handleChangeUser.bind(this);

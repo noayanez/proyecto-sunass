@@ -10,7 +10,8 @@ class App extends Component {
         super();
         this.state = {
             isLogged: false,
-            token: ''
+            token: '',
+            hostname: 'http://179.43.88.86:8080' //HAY QUE AÑADIR UN HOSTNAME PARA QUE FUNCIONE LA APLICACION WEB
         }
         this.handleChangeIsLogged = this.handleChangeIsLogged.bind(this);
         this.handleChangeToken = this.handleChangeToken.bind(this);
@@ -31,13 +32,13 @@ class App extends Component {
 
     render() {
         if (this.state.isLogged) {
-            return (<AppPrimary tokenBody={this.state.tokenBody} handleChangeIsLogged={this.handleChangeIsLogged} token={this.state.token} />)
+            return (<AppPrimary tokenBody={this.state.tokenBody} handleChangeIsLogged={this.handleChangeIsLogged} token={this.state.token} hostname={this.state.hostname}/>)
         } else {
             return (
                 <BrowserRouter>
                     <Switch>
                         <Route
-                            component={(props) => <Login {...props} isLogged={this.state.isLogged} handleChangeIsLogged={this.handleChangeIsLogged} handleChangeToken={this.handleChangeToken} />}
+                            component={(props) => <Login {...props} isLogged={this.state.isLogged} handleChangeIsLogged={this.handleChangeIsLogged} handleChangeToken={this.handleChangeToken} hostname={this.state.hostname}/>}
                         />
                     </Switch>
                 </BrowserRouter>

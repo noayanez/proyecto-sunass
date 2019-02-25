@@ -25,7 +25,7 @@ class AppPrimary extends Component {
             tipoConsulta : "tabla",
             acumulado : "1",
             empezarConsulta : false,
-            hostname : "http://179.43.88.86:8080", //HAY QUE AÑADIR UN HOSTNAME PARA QUE FUNCIONE LA APLICACION WEB
+            hostname : this.props.hostname,
             eps : "",
             epsNombre : "",
             local : "",
@@ -428,9 +428,18 @@ class AppPrimary extends Component {
         console.log(result);
         this.setState({
             chartData : obj,
-            prefijo : result[i].simvar,
             titulo : titaux
         })
+        if(this.state.tipo === "1"){
+            this.setState({
+                prefijo : result[0].simvar
+            })
+        }
+        if(this.state.tipo === "2"){
+            this.setState({
+                prefijo : result[0].simind
+            })
+        }
     }
 
     fetchConsulta(){
