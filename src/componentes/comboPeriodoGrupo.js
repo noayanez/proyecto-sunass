@@ -46,7 +46,7 @@ class ComboPeriodoGrupo extends Component {
                 headers : {
                     'Accept' : '*/*',
                     'Content-Type' : 'application/json; charset=UTF-8',
-                    'token' : 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aXBvIjoyLCJjb3JyZW8iOiJnaXpAZ2l6LmdvYi5wZSIsImlzcyI6ImF1dGgwIiwiaWQiOjIsImlhdCI6MTU0NDI5NTA4OH0.-FXKZS6U-q15-YsTss1xs2415RO2THd_aGqcLm20Zr4'
+                    'token' : this.props.token
                 },
                 body : JSON.stringify(data)
             })
