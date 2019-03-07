@@ -4,6 +4,7 @@ import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import AppPrimary from "./AppPrimary.js";
 import AdminPage from "./AdminPage.js";
 import Login from "./Login.js";
+import LoginAdmin from "./LoginAdmin.js";
 
 class App extends Component {
 
@@ -15,6 +16,7 @@ class App extends Component {
             token: '',
             hostname: 'http://179.43.88.86:8080' //HAY QUE AÑADIR UN HOSTNAME PARA QUE FUNCIONE LA APLICACION WEB
         }
+        this.handleChangeIsAdmin = this.handleChangeIsAdmin.bind(this);
         this.handleChangeIsLogged = this.handleChangeIsLogged.bind(this);
         this.handleChangeToken = this.handleChangeToken.bind(this);
     }
@@ -49,10 +51,10 @@ class App extends Component {
                 <BrowserRouter>
                     <Switch>
                         <Route exact path="/admin"
-                            component={(props) => <Login {...props} title={"ADMINISTRADOR"} isLogged={this.state.isAdmin} handleChangeIsLogged={this.handleChangeisAdmin} handleChangeToken={this.handleChangeToken} hostname={this.state.hostname}/>}
+                            component={(props) => <LoginAdmin {...props} title={"ADMINISTRADOR"} handleChangeIsAdmin={this.handleChangeIsAdmin} handleChangeToken={this.handleChangeToken} hostname={this.state.hostname}/>}
                         />
                         <Route
-                        component={(props) => <Login {...props} title={"LOGIN"} isLogged={this.state.isLogged} handleChangeIsLogged={this.handleChangeIsLogged} handleChangeToken={this.handleChangeToken} hostname={this.state.hostname}/>}
+                        component={(props) => <Login {...props} title={"LOGIN"} handleChangeIsLogged={this.handleChangeIsLogged} handleChangeToken={this.handleChangeToken} hostname={this.state.hostname}/>}
                         />
                     </Switch>
                 </BrowserRouter>

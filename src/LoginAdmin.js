@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './login.css';
 
-class Login extends Component {
+class LoginAdmin extends Component {
 
     constructor(props){
         super(props);
@@ -9,7 +9,6 @@ class Login extends Component {
             user: '',
             pass: '',
             error: false,
-            isLogged: props.isLogged,
             hostname: this.props.hostname
         }
         this.fetchLogin = this.fetchLogin.bind(this);
@@ -39,7 +38,7 @@ class Login extends Component {
             if (result.token !== undefined) {
                 var splited = result.token.split('.');
                 this.props.handleChangeToken(result.token);
-                this.props.handleChangeIsLogged(true, JSON.parse(atob(splited[1])));
+                this.props.handleChangeIsAdmin(true, JSON.parse(atob(splited[1])));
             } else {
                 this.setState({
                     error: true
@@ -130,4 +129,4 @@ class Login extends Component {
     }
 }
 
-export default Login;
+export default LoginAdmin;
