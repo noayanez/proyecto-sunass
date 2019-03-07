@@ -35,12 +35,12 @@ class Login extends Component {
             return response.json()
         })
         .then((result) => {
-            console.log(result);
+            // console.log(result);
             if (result.token !== undefined) {
                 var splited = result.token.split('.');
                 console.log();
-                this.props.handleChangeIsLogged(true, JSON.parse(atob(splited[1])));
                 this.props.handleChangeToken(result.token);
+                this.props.handleChangeIsLogged(true, JSON.parse(atob(splited[1])));
             } else {
                 this.setState({
                     error: true
@@ -75,7 +75,7 @@ class Login extends Component {
                         <div className="row">
                             <div className="col">
                                 <div className="text-login">
-                                    LOGIN { this.state.isLogged }
+                                    { this.props.title }
                                 </div>
                             </div>
                         </div>

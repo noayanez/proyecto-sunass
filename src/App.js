@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import AppPrimary from "./AppPrimary.js";
+import AdminPage from "./AdminPage.js";
 import Login from "./Login.js";
 
 class App extends Component {
@@ -10,6 +11,7 @@ class App extends Component {
         super();
         this.state = {
             isLogged: false,
+            isAdmin: false,
             token: '',
             hostname: 'http://179.43.88.86:8080' //HAY QUE AÑADIR UN HOSTNAME PARA QUE FUNCIONE LA APLICACION WEB
         }
@@ -24,6 +26,13 @@ class App extends Component {
         })
     }
 
+    handleChangeIsAdmin(flag, tokenBody) {
+        this.setState({
+            isAdmin: flag,
+            tokenBody: tokenBody
+        })
+    }
+
     handleChangeToken(token) {
         this.setState({
             token: token
@@ -33,12 +42,17 @@ class App extends Component {
     render() {
         if (this.state.isLogged) {
             return (<AppPrimary tokenBody={this.state.tokenBody} handleChangeIsLogged={this.handleChangeIsLogged} token={this.state.token} hostname={this.state.hostname}/>)
-        } else {
+        } else if (this.state.isAdmin) {
+            return (<AdminPage tokenBody={this.state.tokenBody} token={this.state.token} hostname={this.state.hostname}/>)
+        } else  {
             return (
                 <BrowserRouter>
                     <Switch>
+                        <Route exact path="/admin"
+                            component={(props) => <Login {...props} title={"ADMINISTRADOR"} isLogged={this.state.isAdmin} handleChangeIsLogged={this.handleChangeisAdmin} handleChangeToken={this.handleChangeToken} hostname={this.state.hostname}/>}
+                        />
                         <Route
-                            component={(props) => <Login {...props} isLogged={this.state.isLogged} handleChangeIsLogged={this.handleChangeIsLogged} handleChangeToken={this.handleChangeToken} hostname={this.state.hostname}/>}
+                        component={(props) => <Login {...props} title={"LOGIN"} isLogged={this.state.isLogged} handleChangeIsLogged={this.handleChangeIsLogged} handleChangeToken={this.handleChangeToken} hostname={this.state.hostname}/>}
                         />
                     </Switch>
                 </BrowserRouter>
